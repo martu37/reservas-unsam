@@ -1,0 +1,27 @@
+# Levantar las bases:          docker compose up -d
+# Borrar todo y empezar de 0:  docker compose down -v
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: reservas-postgres
+    environment:
+      POSTGRES_USER: reservas
+      POSTGRES_PASSWORD: reservas
+      POSTGRES_DB: reservas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7
+    container_name: reservas-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  postgres_data:
+  mongo_data:

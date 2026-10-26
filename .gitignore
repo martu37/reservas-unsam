@@ -1,0 +1,20 @@
+# Variables de entorno y secretos
+.env
+*.log
+
+# Backend (Gradle / Kotlin)
+backend/build/
+backend/.gradle/
+backend/out/
+backend/.kotlin/
+
+# Frontend (React)
+frontend/node_modules/
+frontend/dist/
+
+# IDEs y sistema
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
