@@ -68,10 +68,24 @@ erDiagram
 
 ## Restricciones que no se ven en el diagrama
 
-- Dos reservas **confirmadas** del mismo espacio no pueden superponerse en el
-  tiempo. Lo garantiza la base, no el backend.
-- `fin` tiene que ser posterior a `inicio`, en reservas y en bloqueos.
-- La reserva tiene que caer dentro del horario del tipo de espacio y durar lo que
-  indica `duracion_min`.
-- No se puede reservar un espacio inactivo ni uno con un bloqueo en ese horario.
-- `cancelada_en` tiene valor solo si `estado = 'cancelada'`.
+Todas están implementadas en [`modelo_relacional.sql`](../database/modelo_relacional.sql)
+y probadas en [`pruebas_restricciones.sql`](../database/pruebas_restricciones.sql)
+(salida en [`pruebas_restricciones_salida.txt`](pruebas_restricciones_salida.txt)).
+
+| regla | cómo la garantiza la base |
+|---|---|
+| Dos reservas **confirmadas** del mismo espacio no se superponen | `EXCLUDE USING gist` sobre `(espacio_id, tsrange(inicio, fin))` |
+| Dos bloqueos del mismo espacio no se superponen | `EXCLUDE USING gist`, igual que reservas |
+| `fin` es posterior a `inicio`, en reservas y bloqueos | `CHECK` |
+| `cancelada_en` tiene valor si y solo si `estado = 'CANCELADA'` | `CHECK` |
+| El mail es institucional y no se repite | `CHECK` con expresión regular y `UNIQUE` |
+| La reserva dura lo que indica el tipo y cae dentro de su horario | trigger `validar_reserva` |
+| No se reserva un espacio inactivo ni uno bloqueado en ese horario | trigger `validar_reserva` |
+| Solo un admin crea bloqueos | trigger `validar_bloqueo` |
+| No queda una reserva futura confirmada dentro de un bloqueo | trigger `validar_bloqueo` |
+| No se borran espacios ni usuarios con reservas | `FOREIGN KEY ... ON DELETE RESTRICT` |
+
+**Decisión sobre los bloqueos:** si un admin bloquea un horario con reservas
+confirmadas, esas reservas se cancelan. El backend las cancela y crea el bloqueo
+en la misma transacción, y registra el evento en el historial de cada usuario.
+La base rechaza el bloqueo si quedara alguna reserva confirmada adentro.

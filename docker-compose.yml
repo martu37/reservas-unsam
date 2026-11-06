@@ -1,5 +1,8 @@
 # Levantar las bases:          docker compose up -d
 # Borrar todo y empezar de 0:  docker compose down -v
+#
+# Los scripts de database/ se ejecutan solos la PRIMERA vez que se crea la base.
+# Si cambiás un .sql: docker compose down -v && docker compose up -d
 
 services:
   postgres:
@@ -9,10 +12,15 @@ services:
       POSTGRES_USER: reservas
       POSTGRES_PASSWORD: reservas
       POSTGRES_DB: reservas
+      # Sin esto la base usa UTC y "hoy" cambia a las 21 hs de Argentina
+      TZ: America/Argentina/Buenos_Aires
+      PGTZ: America/Argentina/Buenos_Aires
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/modelo_relacional.sql:/docker-entrypoint-initdb.d/01-modelo.sql:ro
+      - ./database/datos_iniciales.sql:/docker-entrypoint-initdb.d/02-datos.sql:ro
 
   mongo:
     image: mongo:7
