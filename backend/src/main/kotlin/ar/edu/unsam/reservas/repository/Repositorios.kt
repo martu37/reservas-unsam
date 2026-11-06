@@ -2,6 +2,7 @@ package ar.edu.unsam.reservas.repository
 
 import ar.edu.unsam.reservas.domain.Bloqueo
 import ar.edu.unsam.reservas.domain.Espacio
+import ar.edu.unsam.reservas.domain.EventoHistorial
 import ar.edu.unsam.reservas.domain.Franja
 import ar.edu.unsam.reservas.domain.Reserva
 import ar.edu.unsam.reservas.domain.Usuario
@@ -33,6 +34,13 @@ interface ReservaRepository {
 
     fun create(reserva: Reserva): Reserva
     fun update(reserva: Reserva)
+}
+
+// El repositorio polimórfico del punto 6: una implementación en MongoDB
+// (la principal) y otra en PostgreSQL con JSONB (el respaldo)
+interface HistorialRepository {
+    fun registrar(evento: EventoHistorial)
+    fun findByUsuario(usuarioId: Long): List<EventoHistorial>
 }
 
 interface BloqueoRepository {

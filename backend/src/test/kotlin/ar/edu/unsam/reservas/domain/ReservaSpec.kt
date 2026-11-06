@@ -43,6 +43,15 @@ class ReservaSpec : DescribeSpec({
             reserva.estado shouldBe EstadoReserva.CANCELADA
         }
 
+        it("el evento le explica al usuario por qué se canceló") {
+            val reserva = reserva().apply { cancelarPorMantenimiento(hora("12:00")) }
+
+            val evento = EventoHistorial.canceladaPorMantenimiento(reserva, "Arco roto", hora("12:00"))
+
+            evento.detalle["motivo"] shouldBe "Mantenimiento: Arco roto"
+            evento.usuarioId shouldBe juan().id
+        }
+
         it("no cancela una reserva que ya estaba cancelada") {
             val reserva = reserva().apply { cancelar(juan(), hora("12:00")) }
 

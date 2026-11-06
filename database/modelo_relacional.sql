@@ -217,6 +217,30 @@ CREATE TRIGGER tg_bloqueo_validar
 
 
 -- ---------------------------------------------------------------------------
+-- Historial de eventos: RESPALDO de MongoDB
+-- ---------------------------------------------------------------------------
+-- El historial vive en MongoDB. Esta tabla es la segunda implementación del
+-- mismo repositorio: si se configura PostgreSQL, o si MongoDB no responde, los
+-- eventos se guardan acá. El detalle cambia según el tipo de evento, por eso es
+-- JSONB (un documento JSON dentro de la columna) y no columnas fijas.
+-- No tiene FK a usuario a propósito: es un registro de lo que pasó, igual que
+-- el documento de Mongo, y no depende de las otras tablas.
+CREATE TABLE historial_evento (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    usuario_id  BIGINT      NOT NULL,
+    tipo        VARCHAR(20) NOT NULL,
+    fecha       TIMESTAMP   NOT NULL,
+    detalle     JSONB       NOT NULL DEFAULT '{}',
+
+    CONSTRAINT ck_historial_tipo
+        CHECK (tipo IN ('RESERVA_CREADA', 'RESERVA_CANCELADA', 'RESERVA_RECHAZADA'))
+);
+
+-- "Mi actividad" trae los eventos de un usuario, del más nuevo al más viejo
+CREATE INDEX ix_historial_usuario_fecha ON historial_evento (usuario_id, fecha DESC);
+
+
+-- ---------------------------------------------------------------------------
 -- Vista con la información relacionada de cada reserva (JOIN de 4 tablas)
 -- ---------------------------------------------------------------------------
 CREATE VIEW reserva_detalle AS

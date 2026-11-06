@@ -36,6 +36,17 @@ class EventoHistorial(
             ),
         )
 
+        // La canceló el sistema porque un admin bloqueó el espacio
+        fun canceladaPorMantenimiento(reserva: Reserva, motivo: String, ahora: LocalDateTime) = EventoHistorial(
+            reserva.usuario.id,
+            TipoEvento.RESERVA_CANCELADA,
+            ahora,
+            detalleDe(reserva.espacio, reserva.franja) + mapOf(
+                "reservaId" to reserva.id,
+                "motivo" to "Mantenimiento: $motivo",
+            ),
+        )
+
         fun rechazada(
             usuario: Usuario,
             espacio: Espacio,
