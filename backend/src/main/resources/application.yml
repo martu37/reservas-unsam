@@ -4,3 +4,10 @@ server:
     whitelabel:
       enabled: false
     include-message: always
+
+# La base que levanta docker-compose.yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reservas
+    username: reservas
+    password: reservas

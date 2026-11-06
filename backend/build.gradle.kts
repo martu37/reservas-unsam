@@ -25,6 +25,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // PostgreSQL con SQL escrito a mano (JdbcTemplate), sin JPA
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.postgresql:postgresql")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -39,4 +43,6 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // Igual que en main(): la zona horaria de la base
+    systemProperty("user.timezone", "America/Argentina/Buenos_Aires")
 }

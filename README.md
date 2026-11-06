@@ -36,6 +36,19 @@ docker compose up -d
 - PostgreSQL en `localhost:5432` (usuario, contraseña y base: `reservas`)
 - MongoDB en `localhost:27017`
 
+### Backend
+
+Hace falta Java 21. Los tests de los repositorios usan el PostgreSQL de Docker,
+así que primero hay que levantar las bases:
+
+```
+cd backend
+./gradlew test
+```
+
+Cada test de base corre en una transacción que se deshace al terminar: no
+modifica los datos.
+
 ### Frontend
 
 Hace falta Node 20 o superior y pnpm:

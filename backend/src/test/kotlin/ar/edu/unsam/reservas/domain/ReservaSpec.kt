@@ -34,6 +34,22 @@ class ReservaSpec : DescribeSpec({
         }
     }
 
+    describe("cancelar por mantenimiento") {
+        it("la cancela aunque no lo pida su dueño") {
+            val reserva = reserva()
+
+            reserva.cancelarPorMantenimiento(hora("12:00"))
+
+            reserva.estado shouldBe EstadoReserva.CANCELADA
+        }
+
+        it("no cancela una reserva que ya estaba cancelada") {
+            val reserva = reserva().apply { cancelar(juan(), hora("12:00")) }
+
+            shouldThrow<BusinessException> { reserva.cancelarPorMantenimiento(hora("13:00")) }
+        }
+    }
+
     describe("el evento de una cancelación") {
         it("guarda con cuántas horas de anticipación se canceló") {
             val reserva = reserva().apply { cancelar(juan(), hora("12:00")) }

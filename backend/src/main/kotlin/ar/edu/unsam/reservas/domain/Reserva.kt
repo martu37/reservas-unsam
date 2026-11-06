@@ -37,6 +37,18 @@ class Reserva(
         if (!puedeCancelarse(ahora)) {
             throw BusinessException("La reserva ya no se puede cancelar")
         }
+        marcarCancelada(ahora)
+    }
+
+    // Cuando un admin bloquea el espacio: no la cancela su dueño
+    fun cancelarPorMantenimiento(ahora: LocalDateTime) {
+        if (!estaConfirmada()) {
+            throw BusinessException("La reserva ya estaba cancelada")
+        }
+        marcarCancelada(ahora)
+    }
+
+    private fun marcarCancelada(ahora: LocalDateTime) {
         estado = EstadoReserva.CANCELADA
         canceladaEn = ahora
     }
