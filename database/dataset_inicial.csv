@@ -1,0 +1,19 @@
+fecha_pedido,mail,nombre_completo,claustro,espacio,tipo_espacio,ubicacion,duracion_turno,horario_tipo,fecha_reserva,horario,estado,respondido_por,observaciones
+2026-11-02,juan.perez@estudiantes.unsam.edu.ar,"Pérez, Juan",Estudiante,Cancha 1,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-05,18:00-19:00,Confirmada,Ana (Deportes),
+2026-11-02,lucia.gomez@estudiantes.unsam.edu.ar,"Gómez, Lucía",Estudiante,Parrilla 1,Parrilla,Quincho norte,240 min,10:00-20:00,2026-11-07,12:00-16:00,Confirmada,Ana (Deportes),cumpleaños
+2026-11-03,tomas.diaz@estudiantes.unsam.edu.ar,"Díaz, Tomás",Estudiante,Cancha 1,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-05,18:00-19:00,Rechazada (ocupado),Ana (Deportes),se le ofreció la cancha 2
+2026-11-03,mrodriguez@unsam.edu.ar,"Rodríguez, Martín",Docente,Cancha 3,Cancha fútbol 7,Sector deportivo,90 min,09:00-22:00,2026-11-06,19:00-20:30,Confirmada,Pablo (Bienestar),
+2026-11-03,sofia.lopez@estudiantes.unsam.edu.ar,"López, Sofía",Estudiante,Parrilla 2,Parrilla,Quincho norte,240 min,10:00-20:00,2026-11-07,12:00-16:00,Cancelada,Pablo (Bienestar),avisó por mail el 06/11
+2026-11-04,juan.perez@estudiantes.unsam.edu.ar,"Perez, Juan",Estudiante,Cancha 2,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-12,18:00-19:00,Confirmada,Pablo (Bienestar),
+2026-11-04,dfernandez@unsam.edu.ar,"Fernández, Daniela",No docente,Parrilla 3,Parrilla,Patio central,240 min,10:00-20:00,2026-11-08,11:00-15:00,Confirmada,Ana (Deportes),
+2026-11-04,lucia.gomez@estudiantes.unsam.edu.ar,"Gomez, Lucia",Estudiante,Cancha 2,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-06,17:00-18:00,Confirmada,Ana (Deportes),
+2026-11-05,tomas.diaz@estudiantes.unsam.edu.ar,"Díaz, Tomás",Estudiante,Cancha 2,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-05,18:00-19:00,Confirmada,Ana (Deportes),
+2026-11-05,cmartinez@unsam.edu.ar,"Martínez, Carla",Docente,Parrilla 1,Parrilla,Quincho norte,240 min,10:00-20:00,2026-11-14,12:00-16:00,Confirmada,Pablo (Bienestar),almuerzo de cátedra
+2026-11-06,juan.perez@estudiantes.unsam.edu.ar,"Pérez, Juan",Estudiante,Cancha 1,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-19,18:00-19:00,Confirmada,Ana (Deportes),
+2026-11-06,mrodriguez@unsam.edu.ar,"Rodríguez, Martín",Docente,Cancha 3,Cancha fútbol 7,Sector deportivo,90 min,09:00-22:00,2026-11-13,19:00-20:30,Confirmada,Pablo (Bienestar),
+2026-11-06,lucia.gomez@estudiantes.unsam.edu.ar,"Gómez, Lucía",Estudiante,Parrilla 1,Parrilla,Quincho norte,240 min,10:00-20:00,2026-11-14,13:00-17:00,Rechazada (ocupado),Pablo (Bienestar),
+2026-11-07,dfernandez@unsam.edu.ar,"Fernández, Daniela",No docente,Cancha 1,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-10,13:00-14:00,Confirmada,Ana (Deportes),
+2026-11-07,tomas.diaz@estudiantes.unsam.edu.ar,"Díaz, Tomás",Estudiante,Parrilla 3,Parrilla,Patio central,240 min,10:00-20:00,2026-11-15,11:00-15:00,Rechazada (mantenimiento),Ana (Deportes),parrilla 3 en arreglo hasta el 20/11
+2026-11-08,cmartinez@unsam.edu.ar,"Martínez, Carla",Docente,Cancha 2,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-10,13:00-14:00,Confirmada,Pablo (Bienestar),
+2026-11-08,sofia.lopez@estudiantes.unsam.edu.ar,"López, Sofía",Estudiante,Cancha 1,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-12,18:00-19:00,Confirmada,Ana (Deportes),
+2026-11-09,juan.perez@estudiantes.unsam.edu.ar,"Pérez, Juan",Estudiante,Cancha 1,Cancha fútbol 5,Sector deportivo,60 min,09:00-22:00,2026-11-26,18:00-19:00,Confirmada,Ana (Deportes),
