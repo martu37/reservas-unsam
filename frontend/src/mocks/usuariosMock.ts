@@ -1,0 +1,60 @@
+import type { UsuarioJSON } from '../domain/Usuario'
+
+export const usuariosMock: UsuarioJSON[] = [
+  {
+    id: 1,
+    mail: 'juan.perez@estudiantes.unsam.edu.ar',
+    apellido: 'Pérez',
+    nombre: 'Juan',
+    claustro: 'estudiante',
+    rol: 'usuario',
+  },
+  {
+    id: 2,
+    mail: 'lucia.gomez@estudiantes.unsam.edu.ar',
+    apellido: 'Gómez',
+    nombre: 'Lucía',
+    claustro: 'estudiante',
+    rol: 'usuario',
+  },
+  {
+    id: 3,
+    mail: 'mrodriguez@unsam.edu.ar',
+    apellido: 'Rodríguez',
+    nombre: 'Martín',
+    claustro: 'docente',
+    rol: 'usuario',
+  },
+  {
+    id: 4,
+    mail: 'sofia.lopez@estudiantes.unsam.edu.ar',
+    apellido: 'López',
+    nombre: 'Sofía',
+    claustro: 'estudiante',
+    rol: 'usuario',
+  },
+  {
+    id: 5,
+    mail: 'dfernandez@unsam.edu.ar',
+    apellido: 'Fernández',
+    nombre: 'Daniela',
+    claustro: 'no docente',
+    rol: 'admin',
+  },
+  {
+    id: 6,
+    mail: 'tomas.diaz@estudiantes.unsam.edu.ar',
+    apellido: 'Díaz',
+    nombre: 'Tomás',
+    claustro: 'estudiante',
+    rol: 'usuario',
+  },
+  {
+    id: 7,
+    mail: 'cmartinez@unsam.edu.ar',
+    apellido: 'Martínez',
+    nombre: 'Carla',
+    claustro: 'docente',
+    rol: 'usuario',
+  },
+]

@@ -1,0 +1,15 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 16px;
+}
+
+.imagen {
+  width: 48px;
+  height: 48px;
+}
+
+.title {
+  line-height: 1.2;
+}

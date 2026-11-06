@@ -25,7 +25,9 @@ documentacion/   informe y DER
 
 ## Cómo levantarlo
 
-Por ahora solo las bases (hace falta Docker Desktop abierto):
+### Bases de datos
+
+Hace falta Docker Desktop abierto:
 
 ```
 docker compose up -d
@@ -33,3 +35,19 @@ docker compose up -d
 
 - PostgreSQL en `localhost:5432` (usuario, contraseña y base: `reservas`)
 - MongoDB en `localhost:27017`
+
+### Frontend
+
+Hace falta Node 20 o superior y pnpm:
+
+```
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Queda en `http://localhost:5173`. Por ahora funciona con datos de prueba
+(`frontend/src/mocks`), sin backend. Desde "Usando como" se puede cambiar de
+usuario; Daniela Fernández es admin y ve la sección de bloqueos.
+
+Tests: `pnpm test`.

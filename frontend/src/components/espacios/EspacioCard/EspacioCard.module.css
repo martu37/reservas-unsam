@@ -1,0 +1,15 @@
+.detalle {
+  color: var(--mui-palette-text-secondary);
+  margin-bottom: 12px;
+}
+
+.turnos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.libres {
+  color: var(--mui-palette-text-secondary);
+}

@@ -1,0 +1,19 @@
+.filtros {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tipo {
+  min-width: 180px;
+}
+
+.mensaje {
+  margin-bottom: 16px;
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}

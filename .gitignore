@@ -10,6 +10,7 @@ backend/.kotlin/
 
 # Frontend (React)
 frontend/node_modules/
+frontend/coverage/
 frontend/dist/
 
 # IDEs y sistema

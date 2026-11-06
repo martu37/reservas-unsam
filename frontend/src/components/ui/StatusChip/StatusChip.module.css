@@ -1,0 +1,23 @@
+.chip {
+  font-weight: 600;
+}
+
+.success {
+  background-color: rgba(var(--mui-palette-success-mainChannel) / 0.12);
+  color: var(--mui-palette-success-main);
+}
+
+.warning {
+  background-color: rgba(var(--mui-palette-warning-mainChannel) / 0.15);
+  color: var(--mui-palette-warning-dark);
+}
+
+.error {
+  background-color: rgba(var(--mui-palette-error-mainChannel) / 0.12);
+  color: var(--mui-palette-error-main);
+}
+
+.neutral {
+  background-color: var(--mui-palette-action-hover);
+  color: var(--mui-palette-text-secondary);
+}

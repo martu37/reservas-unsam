@@ -1,0 +1,21 @@
+.chip {
+  font-weight: 600;
+}
+
+.postgres {
+  color: #336791;
+  border-color: #336791;
+}
+
+.postgres :global(.MuiChip-icon) {
+  color: #336791;
+}
+
+.mongo {
+  color: #13aa52;
+  border-color: #13aa52;
+}
+
+.mongo :global(.MuiChip-icon) {
+  color: #13aa52;
+}

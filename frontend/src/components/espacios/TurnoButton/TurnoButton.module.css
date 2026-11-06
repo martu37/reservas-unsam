@@ -1,0 +1,18 @@
+.turno {
+  min-width: 64px;
+}
+
+.reservado:disabled {
+  background-color: rgba(var(--mui-palette-error-mainChannel) / 0.1);
+  color: var(--mui-palette-error-main);
+}
+
+.bloqueado:disabled {
+  background-color: rgba(var(--mui-palette-warning-mainChannel) / 0.15);
+  color: var(--mui-palette-warning-dark);
+  text-decoration: line-through;
+}
+
+.pasado:disabled {
+  color: var(--mui-palette-text-disabled);
+}

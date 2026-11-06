@@ -1,0 +1,33 @@
+.drawer {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.drawer :global(.MuiDrawer-paper) {
+  width: 240px;
+  box-sizing: border-box;
+}
+
+.item {
+  border-radius: 4px;
+  margin: 0 8px;
+}
+
+.item:global(.active) {
+  background-color: rgba(var(--mui-palette-primary-mainChannel) / 0.1);
+  color: var(--mui-palette-primary-main);
+}
+
+.drawer :global(.MuiDrawer-paper) {
+  display: flex;
+  flex-direction: column;
+}
+
+.usuario {
+  margin: auto 16px 16px;
+}
+
+.usuario :global(.MuiFormHelperText-root) {
+  margin-left: 0;
+  overflow-wrap: anywhere;
+}
