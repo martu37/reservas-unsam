@@ -16,6 +16,8 @@ class HistorialRepositoryPostgres(
     private val json: ObjectMapper,
 ) : HistorialRepository {
 
+    override val motor = "postgres"
+
     override fun registrar(evento: EventoHistorial) {
         val id = jdbc.queryForObject(
             """

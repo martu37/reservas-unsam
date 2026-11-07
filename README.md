@@ -49,6 +49,28 @@ cd backend
 Cada test de base corre en una transacción que se deshace al terminar: no
 modifica los datos.
 
+Para levantar la API en `http://localhost:8080`:
+
+```
+cd backend
+./gradlew bootRun
+```
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| GET | `/usuarios`, `/usuarios/{id}` | usuarios |
+| GET | `/espacios`, `/espacios/{id}` | espacios activos, con su tipo |
+| GET | `/espacios/{id}/turnos?fecha=AAAA-MM-DD` | grilla del día con el estado de cada turno |
+| GET | `/usuarios/{id}/reservas` | reservas de un usuario |
+| POST | `/reservas?usuarioId=` | reservar (`espacioId`, `inicio`, `fin`) |
+| PATCH | `/reservas/{id}/cancelar?usuarioId=` | cancelar una reserva propia |
+| GET | `/usuarios/{id}/historial` | historial de eventos y qué motor contestó |
+| GET | `/bloqueos`, `/bloqueos/{id}` | bloqueos por mantenimiento |
+| POST, PUT, DELETE | `/bloqueos`, `/bloqueos/{id}` con `?usuarioId=` | alta, cambio y baja de bloqueos (solo admin) |
+
+Errores: 400 si no se cumple una regla, 404 si no existe, 409 si el turno
+está ocupado o bloqueado. El cuerpo trae el motivo en `message`.
+
 ### Frontend
 
 Hace falta Node 20 o superior y pnpm:

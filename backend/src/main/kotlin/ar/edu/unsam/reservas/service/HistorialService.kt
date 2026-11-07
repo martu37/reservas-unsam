@@ -22,5 +22,7 @@ class HistorialService(private val historial: HistorialRepository) {
 
     fun registrarTodos(eventos: List<EventoHistorial>) = eventos.forEach(::registrar)
 
+    fun motor() = historial.motor
+
     fun deUsuario(usuarioId: Long): List<EventoHistorial> = historial.findByUsuario(usuarioId)
 }

@@ -39,6 +39,9 @@ interface ReservaRepository {
 // El repositorio polimórfico del punto 6: una implementación en MongoDB
 // (la principal) y otra en PostgreSQL con JSONB (el respaldo)
 interface HistorialRepository {
+    // "mongo" o "postgres": el front muestra qué motor contestó
+    val motor: String
+
     fun registrar(evento: EventoHistorial)
     fun findByUsuario(usuarioId: Long): List<EventoHistorial>
 }
