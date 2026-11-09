@@ -44,7 +44,7 @@ export function BloqueoFormPage() {
     if (!usuario) return
     try {
       if (isEdit) {
-        await bloqueoService.actualizar(Number(id), data)
+        await bloqueoService.actualizar(Number(id), data, usuario.id)
       } else {
         await bloqueoService.crear(data, usuario.id)
       }

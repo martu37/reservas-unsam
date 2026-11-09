@@ -81,8 +81,8 @@ pnpm install
 pnpm dev
 ```
 
-Queda en `http://localhost:5173`. Por ahora funciona con datos de prueba
-(`frontend/src/mocks`), sin backend. Desde "Usando como" se puede cambiar de
-usuario; Daniela Fernández es admin y ve la sección de bloqueos.
+Queda en `http://localhost:5173` y le pide los datos a la API, así que tienen
+que estar levantados las bases y el backend. Desde "Usando como" se puede
+cambiar de usuario; Daniela Fernández es admin y ve la sección de bloqueos.
 
 Tests: `pnpm test`.

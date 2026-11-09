@@ -10,12 +10,14 @@ import { PageTitle } from '../components/ui/PageTitle/PageTitle'
 import { SectionCard } from '../components/ui/SectionCard/SectionCard'
 import type { Bloqueo } from '../domain/Bloqueo'
 import { useOnInit } from '../hooks/useOnInit'
+import { useSesion } from '../hooks/useSesion'
 import { bloqueoService } from '../services/bloqueoService'
 import { now } from '../utils/dates'
 import { getErrorMesagge } from '../utils/errorHandling'
 import styles from './Pagina.module.css'
 
 export function Bloqueos() {
+  const { usuario } = useSesion()
   const [bloqueos, setBloqueos] = useState<Bloqueo[]>([])
   const [aEliminar, setAEliminar] = useState<Bloqueo | null>(null)
   const [error, setError] = useState('')
@@ -28,9 +30,9 @@ export function Bloqueos() {
   })
 
   const handleEliminar = async () => {
-    if (!aEliminar) return
+    if (!aEliminar || !usuario) return
     try {
-      await bloqueoService.eliminar(aEliminar.id)
+      await bloqueoService.eliminar(aEliminar.id, usuario.id)
       setBloqueos(bloqueos.filter((bloqueo) => bloqueo.id !== aEliminar.id))
     } catch (e) {
       setError(getErrorMesagge(e))

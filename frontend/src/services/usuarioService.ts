@@ -1,9 +1,13 @@
-import { Usuario } from '../domain/Usuario'
-import { usuariosMock } from '../mocks/usuariosMock'
+import axios from 'axios'
+import { Usuario, type UsuarioJSON } from '../domain/Usuario'
+import { REST_SERVER_URL } from './constants'
 
 class UsuarioService {
   async getAll(): Promise<Usuario[]> {
-    return structuredClone(usuariosMock).map(Usuario.fromJson)
+    const { data } = await axios.get<UsuarioJSON[]>(
+      `${REST_SERVER_URL}/usuarios`,
+    )
+    return data.map(Usuario.fromJson)
   }
 }
 
