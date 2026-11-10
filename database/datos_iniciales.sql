@@ -1,7 +1,10 @@
--- Datos iniciales: los mismos de database/dataset_inicial.csv, ya normalizados.
--- Las fechas son relativas al día en que se carga la base (CURRENT_DATE),
--- para que siempre haya reservas próximas para mostrar.
+-- Datos iniciales: los de database/dataset_inicial.csv, ya normalizados.
+-- Los id los genera SERIAL en el orden en que se insertan (1, 2, 3...).
+-- Las fechas se calculan desde el día en que se carga la base, para que
+-- siempre haya reservas próximas: CURRENT_DATE + 1 + TIME '18:00' es
+-- "mañana a las 18".
 
+-- 1 Juan, 2 Lucía, 3 Martín, 4 Sofía, 5 Daniela (admin), 6 Tomás, 7 Carla
 INSERT INTO usuario (mail, apellido, nombre, claustro, rol) VALUES
     ('juan.perez@estudiantes.unsam.edu.ar',  'Pérez',     'Juan',    'ESTUDIANTE', 'USUARIO'),
     ('lucia.gomez@estudiantes.unsam.edu.ar', 'Gómez',     'Lucía',   'ESTUDIANTE', 'USUARIO'),
@@ -11,58 +14,38 @@ INSERT INTO usuario (mail, apellido, nombre, claustro, rol) VALUES
     ('tomas.diaz@estudiantes.unsam.edu.ar',  'Díaz',      'Tomás',   'ESTUDIANTE', 'USUARIO'),
     ('cmartinez@unsam.edu.ar',               'Martínez',  'Carla',   'DOCENTE',    'USUARIO');
 
+-- 1 fútbol 5, 2 fútbol 7, 3 parrilla
 INSERT INTO tipo_espacio (nombre, duracion_min, hora_apertura, hora_cierre) VALUES
     ('Cancha fútbol 5', 60,  '09:00', '22:00'),
     ('Cancha fútbol 7', 90,  '09:00', '22:00'),
     ('Parrilla',        240, '10:00', '20:00');
 
-INSERT INTO espacio (nombre, tipo_espacio_id, ubicacion)
-SELECT e.nombre, t.id, e.ubicacion
-  FROM (VALUES
-        ('Cancha 1',   'Cancha fútbol 5', 'Sector deportivo'),
-        ('Cancha 2',   'Cancha fútbol 5', 'Sector deportivo'),
-        ('Cancha 3',   'Cancha fútbol 7', 'Sector deportivo'),
-        ('Parrilla 1', 'Parrilla',        'Quincho norte'),
-        ('Parrilla 2', 'Parrilla',        'Quincho norte'),
-        ('Parrilla 3', 'Parrilla',        'Patio central')
-       ) AS e (nombre, tipo, ubicacion)
-  JOIN tipo_espacio t ON t.nombre = e.tipo;
+-- 1 Cancha 1, 2 Cancha 2, 3 Cancha 3, 4 Parrilla 1, 5 Parrilla 2, 6 Parrilla 3
+INSERT INTO espacio (nombre, tipo_espacio_id, ubicacion) VALUES
+    ('Cancha 1',   1, 'Sector deportivo'),
+    ('Cancha 2',   1, 'Sector deportivo'),
+    ('Cancha 3',   2, 'Sector deportivo'),
+    ('Parrilla 1', 3, 'Quincho norte'),
+    ('Parrilla 2', 3, 'Quincho norte'),
+    ('Parrilla 3', 3, 'Patio central');
 
--- dia: días desde hoy. Una fecha + una hora da un TIMESTAMP.
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado, creada_en, cancelada_en)
-SELECT u.id,
-       e.id,
-       CURRENT_DATE + r.dia + r.desde,
-       CURRENT_DATE + r.dia + r.hasta,
-       r.estado,
-       CURRENT_DATE + LEAST(r.dia - 2, -1) + TIME '10:15',
-       CASE WHEN r.estado = 'CANCELADA' THEN CURRENT_DATE + TIME '08:30' END
-  FROM (VALUES
-        ('juan.perez@estudiantes.unsam.edu.ar',   'Cancha 1',    1, TIME '18:00', TIME '19:00', 'CONFIRMADA'),
-        ('lucia.gomez@estudiantes.unsam.edu.ar',  'Parrilla 1',  2, TIME '10:00', TIME '14:00', 'CONFIRMADA'),
-        ('mrodriguez@unsam.edu.ar',               'Cancha 3',    1, TIME '19:30', TIME '21:00', 'CONFIRMADA'),
-        ('sofia.lopez@estudiantes.unsam.edu.ar',  'Parrilla 2',  2, TIME '10:00', TIME '14:00', 'CANCELADA'),
-        ('juan.perez@estudiantes.unsam.edu.ar',   'Cancha 2',    3, TIME '18:00', TIME '19:00', 'CONFIRMADA'),
-        ('tomas.diaz@estudiantes.unsam.edu.ar',   'Cancha 2',    1, TIME '18:00', TIME '19:00', 'CONFIRMADA'),
-        ('juan.perez@estudiantes.unsam.edu.ar',   'Cancha 1',   -3, TIME '18:00', TIME '19:00', 'CONFIRMADA'),
-        ('cmartinez@unsam.edu.ar',                'Parrilla 1',  4, TIME '14:00', TIME '18:00', 'CONFIRMADA'),
-        ('dfernandez@unsam.edu.ar',               'Cancha 1',    0, TIME '13:00', TIME '14:00', 'CONFIRMADA'),
-        ('juan.perez@estudiantes.unsam.edu.ar',   'Cancha 1',    0, TIME '21:00', TIME '22:00', 'CONFIRMADA'),
-        ('lucia.gomez@estudiantes.unsam.edu.ar',  'Cancha 2',    0, TIME '17:00', TIME '18:00', 'CONFIRMADA')
-       ) AS r (mail, espacio, dia, desde, hasta, estado)
-  JOIN usuario u ON u.mail = r.mail
-  JOIN espacio e ON e.nombre = r.espacio;
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado, creada_en, cancelada_en) VALUES
+    -- Hoy
+    (5, 1, CURRENT_DATE + TIME '13:00', CURRENT_DATE + TIME '14:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (1, 1, CURRENT_DATE + TIME '21:00', CURRENT_DATE + TIME '22:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (2, 2, CURRENT_DATE + TIME '17:00', CURRENT_DATE + TIME '18:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    -- Próximos días
+    (1, 1, CURRENT_DATE + 1 + TIME '18:00', CURRENT_DATE + 1 + TIME '19:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (6, 2, CURRENT_DATE + 1 + TIME '18:00', CURRENT_DATE + 1 + TIME '19:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (3, 3, CURRENT_DATE + 1 + TIME '19:30', CURRENT_DATE + 1 + TIME '21:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (2, 4, CURRENT_DATE + 2 + TIME '10:00', CURRENT_DATE + 2 + TIME '14:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (4, 5, CURRENT_DATE + 2 + TIME '10:00', CURRENT_DATE + 2 + TIME '14:00', 'CANCELADA',  CURRENT_DATE - 5 + TIME '10:15', CURRENT_DATE + TIME '08:30'),
+    (1, 2, CURRENT_DATE + 3 + TIME '18:00', CURRENT_DATE + 3 + TIME '19:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    (7, 4, CURRENT_DATE + 4 + TIME '14:00', CURRENT_DATE + 4 + TIME '18:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL),
+    -- Una que ya pasó
+    (1, 1, CURRENT_DATE - 3 + TIME '18:00', CURRENT_DATE - 3 + TIME '19:00', 'CONFIRMADA', CURRENT_DATE - 5 + TIME '10:15', NULL);
 
-INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por, creado_en)
-SELECT e.id,
-       CURRENT_DATE + b.desde_dia + b.desde_hora,
-       CURRENT_DATE + b.hasta_dia + b.hasta_hora,
-       b.motivo,
-       u.id,
-       CURRENT_DATE - 2 + TIME '09:00'
-  FROM (VALUES
-        ('Parrilla 3', -1, TIME '00:00', 10, TIME '00:00', 'Cambio de rejilla'),
-        ('Cancha 2',    2, TIME '09:00',  2, TIME '13:00', 'Corte de pasto')
-       ) AS b (espacio, desde_dia, desde_hora, hasta_dia, hasta_hora, motivo)
-  JOIN espacio e ON e.nombre = b.espacio
-  JOIN usuario u ON u.mail = 'dfernandez@unsam.edu.ar';
+-- Los dos los cargó Daniela (5), que es la admin
+INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por, creado_en) VALUES
+    (6, CURRENT_DATE - 1 + TIME '00:00', CURRENT_DATE + 10 + TIME '00:00', 'Cambio de rejilla', 5, CURRENT_DATE - 2 + TIME '09:00'),
+    (2, CURRENT_DATE + 2 + TIME '09:00', CURRENT_DATE + 2 + TIME '13:00', 'Corte de pasto',    5, CURRENT_DATE - 2 + TIME '09:00');

@@ -36,6 +36,20 @@ docker compose up -d
 - PostgreSQL en `localhost:5432` (usuario, contraseña y base: `reservas`)
 - MongoDB en `localhost:27017`
 
+Los scripts de `database/` se cargan solo la primera vez, cuando la base está
+vacía. Si cambian, hay que borrar los datos y volver a levantar:
+
+```
+docker compose down -v
+docker compose up -d
+```
+
+Para correr las pruebas de las restricciones:
+
+```
+docker exec -i reservas-postgres sh -c "psql -U reservas -d reservas 2>&1" < database/pruebas_restricciones.sql
+```
+
 ### Backend
 
 Hace falta Java 21. Los tests de los repositorios usan el PostgreSQL de Docker,

@@ -90,6 +90,16 @@ class BloqueoServiceTest(
     }
 
     @Test
+    fun `no se puede cargar un bloqueo que se pisa con otro del mismo espacio`() {
+        bloqueoService.crear(daniela, cancha1, franjaDePrueba("10:00", "13:00"), "Arco roto")
+
+        val error = shouldThrow<BusinessException> {
+            bloqueoService.crear(daniela, cancha1, franjaDePrueba("12:00", "15:00"), "Pintura")
+        }
+        error.message shouldBe "Ya hay un bloqueo en ese horario"
+    }
+
+    @Test
     fun `borrar un bloqueo que no existe avisa que no se encontró`() {
         shouldThrow<NotFoundException> { bloqueoService.eliminar(9999, daniela) }
     }

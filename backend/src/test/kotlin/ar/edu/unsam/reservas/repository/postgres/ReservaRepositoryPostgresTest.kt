@@ -2,7 +2,6 @@ package ar.edu.unsam.reservas.repository.postgres
 
 import ar.edu.unsam.reservas.domain.EstadoReserva
 import ar.edu.unsam.reservas.domain.TurnoNoDisponibleException
-import ar.edu.unsam.reservas.repository.BloqueoRepository
 import ar.edu.unsam.reservas.repository.EspacioRepository
 import ar.edu.unsam.reservas.repository.ReservaRepository
 import ar.edu.unsam.reservas.repository.UsuarioRepository
@@ -25,7 +24,6 @@ class ReservaRepositoryPostgresTest(
     @Autowired val reservas: ReservaRepository,
     @Autowired val espacios: EspacioRepository,
     @Autowired val usuarios: UsuarioRepository,
-    @Autowired val bloqueos: BloqueoRepository,
 ) {
     private val juan get() = usuarios.conMail(JUAN)
     private val lucia get() = usuarios.conMail(LUCIA)
@@ -53,23 +51,13 @@ class ReservaRepositoryPostgresTest(
     }
 
     @Test
-    fun `la base rechaza una reserva superpuesta aunque nadie la haya chequeado antes`() {
+    fun `el índice único de la base rechaza un turno ya reservado aunque nadie lo haya chequeado antes`() {
         reservas.create(reservaDePrueba(juan, cancha1, franjaDePrueba("10:00", "11:00")))
 
         val error = shouldThrow<TurnoNoDisponibleException> {
             reservas.create(reservaDePrueba(lucia, cancha1, franjaDePrueba("10:00", "11:00")))
         }
         error.message shouldBe "El turno ya está reservado"
-    }
-
-    @Test
-    fun `la base rechaza una reserva en un espacio bloqueado`() {
-        bloqueos.create(bloqueoDePrueba(cancha1, franjaDePrueba("09:00", "13:00"), usuarios.conMail(DANIELA)))
-
-        val error = shouldThrow<TurnoNoDisponibleException> {
-            reservas.create(reservaDePrueba(juan, cancha1, franjaDePrueba("10:00", "11:00")))
-        }
-        error.message shouldBe "El espacio está bloqueado: Corte de pasto"
     }
 
     @Test

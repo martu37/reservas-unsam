@@ -57,6 +57,7 @@ class ReservaRepositoryPostgres(private val jdbc: NamedParameterJdbcTemplate) : 
             mapper,
         )
 
+    // Dos franjas se pisan si una empieza antes de que termine la otra
     override fun findConfirmadasSuperpuestas(espacioId: Long, franja: Franja, desde: LocalDateTime): List<Reserva> =
         jdbc.query(
             """
@@ -64,7 +65,7 @@ class ReservaRepositoryPostgres(private val jdbc: NamedParameterJdbcTemplate) : 
              WHERE r.espacio_id = :espacioId
                AND r.estado = 'CONFIRMADA'
                AND r.inicio > :desde
-               AND tsrange(r.inicio, r.fin) && tsrange(CAST(:inicio AS timestamp), CAST(:fin AS timestamp))
+               AND r.inicio < :fin AND r.fin > :inicio
              ORDER BY r.inicio
             """,
             mapOf("espacioId" to espacioId, "desde" to desde, "inicio" to franja.inicio, "fin" to franja.fin),

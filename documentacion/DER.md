@@ -9,7 +9,7 @@ erDiagram
     USUARIO ||--o{ BLOQUEO : registra
 
     USUARIO {
-        bigint id PK
+        int id PK
         varchar mail UK "mail institucional"
         varchar apellido
         varchar nombre
@@ -19,7 +19,7 @@ erDiagram
     }
 
     TIPO_ESPACIO {
-        bigint id PK
+        int id PK
         varchar nombre UK "Cancha fútbol 5, Parrilla..."
         int duracion_min
         time hora_apertura
@@ -27,17 +27,17 @@ erDiagram
     }
 
     ESPACIO {
-        bigint id PK
+        int id PK
         varchar nombre UK "Cancha 1, Parrilla 2..."
-        bigint tipo_espacio_id FK
+        int tipo_espacio_id FK
         varchar ubicacion
         boolean activo
     }
 
     RESERVA {
-        bigint id PK
-        bigint usuario_id FK
-        bigint espacio_id FK
+        int id PK
+        int usuario_id FK
+        int espacio_id FK
         timestamp inicio
         timestamp fin
         varchar estado "confirmada, cancelada"
@@ -46,12 +46,12 @@ erDiagram
     }
 
     BLOQUEO {
-        bigint id PK
-        bigint espacio_id FK
+        int id PK
+        int espacio_id FK
         timestamp inicio
         timestamp fin
         varchar motivo
-        bigint creado_por FK "usuario con rol admin"
+        int creado_por FK "usuario con rol admin"
         timestamp creado_en
     }
 ```
@@ -74,18 +74,34 @@ y probadas en [`pruebas_restricciones.sql`](../database/pruebas_restricciones.sq
 
 | regla | cómo la garantiza la base |
 |---|---|
-| Dos reservas **confirmadas** del mismo espacio no se superponen | `EXCLUDE USING gist` sobre `(espacio_id, tsrange(inicio, fin))` |
-| Dos bloqueos del mismo espacio no se superponen | `EXCLUDE USING gist`, igual que reservas |
+| Un turno no se reserva dos veces: no hay dos reservas **confirmadas** del mismo espacio con el mismo inicio | índice único `uq_reserva_turno (espacio_id, inicio) WHERE estado = 'CONFIRMADA'` |
 | `fin` es posterior a `inicio`, en reservas y bloqueos | `CHECK` |
-| `cancelada_en` tiene valor si y solo si `estado = 'CANCELADA'` | `CHECK` |
-| El mail es institucional y no se repite | `CHECK` con expresión regular y `UNIQUE` |
-| La reserva dura lo que indica el tipo y cae dentro de su horario | trigger `validar_reserva` |
-| No se reserva un espacio inactivo ni uno bloqueado en ese horario | trigger `validar_reserva` |
-| Solo un admin crea bloqueos | trigger `validar_bloqueo` |
-| No queda una reserva futura confirmada dentro de un bloqueo | trigger `validar_bloqueo` |
-| No se borran espacios ni usuarios con reservas | `FOREIGN KEY ... ON DELETE RESTRICT` |
+| Si la reserva está cancelada tiene `cancelada_en`; si no, no | `CHECK` |
+| Estado, claustro y rol solo toman los valores permitidos | `CHECK ... IN (...)` |
+| El mail es de la universidad y no se repite | `CHECK` con `LIKE` y `UNIQUE` |
+| El bloqueo tiene un motivo | `CHECK` |
+| No se borran espacios ni usuarios con reservas, ni tipos con espacios | `FOREIGN KEY ... ON DELETE RESTRICT` |
+| Al borrar un espacio se borran sus bloqueos | `FOREIGN KEY ... ON DELETE CASCADE` |
+
+Alcanza con mirar el inicio porque los turnos son fijos: salen de la duración y
+el horario del tipo de espacio (por ejemplo, fútbol 5 de 9 a 10, de 10 a 11...).
+Dos reservas del mismo espacio solo se pueden pisar si empiezan a la misma hora.
+
+### Reglas que controla el backend
+
+Algunas reglas cruzan datos de varias tablas, y un `CHECK` solo puede mirar la
+fila que se está guardando. Esas las controla el backend antes de guardar:
+
+- que el horario pedido sea un turno del tipo de espacio y no haya pasado;
+- que el espacio esté activo y no esté bloqueado en ese horario;
+- que solo un admin cargue bloqueos, y que dos bloqueos del mismo espacio no se pisen.
+
+La que no puede fallar nunca, que un turno no se reserve dos veces, la controla
+además la base con el índice único. Así, aunque dos personas reserven el mismo
+turno en el mismo momento y las dos pasen el control del backend, la base deja
+guardar solo una.
 
 **Decisión sobre los bloqueos:** si un admin bloquea un horario con reservas
 confirmadas, esas reservas se cancelan. El backend las cancela y crea el bloqueo
-en la misma transacción, y registra el evento en el historial de cada usuario.
-La base rechaza el bloqueo si quedara alguna reserva confirmada adentro.
+juntos (o se hacen las dos cosas o ninguna) y registra el evento en el historial
+de cada usuario.

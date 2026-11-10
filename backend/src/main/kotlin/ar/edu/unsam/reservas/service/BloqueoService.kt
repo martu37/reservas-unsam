@@ -38,6 +38,7 @@ class BloqueoService(
         val espacio = espacioService.porId(espacioId)
         val ahora = reloj.ahora()
         val bloqueo = Bloqueo(espacio, franja, motivo.trim(), admin, ahora).also { it.validate() }
+        exigirLibreDeBloqueos(bloqueo)
 
         val canceladas = transaccion.execute {
             val afectadas = cancelarAfectadas(espacio, franja, ahora)
@@ -57,6 +58,7 @@ class BloqueoService(
         val (bloqueo, canceladas) = transaccion.execute {
             val bloqueo = porId(id)
             bloqueo.actualizar(espacio, franja, motivo.trim())
+            exigirLibreDeBloqueos(bloqueo)
             val afectadas = cancelarAfectadas(espacio, franja, ahora)
             bloqueos.update(bloqueo)
             bloqueo to afectadas
@@ -83,6 +85,14 @@ class BloqueoService(
     // historial que su reserva se canceló y por qué
     private fun avisar(canceladas: List<Reserva>, bloqueo: Bloqueo, ahora: LocalDateTime) =
         historial.registrarTodos(canceladas.map { EventoHistorial.canceladaPorMantenimiento(it, bloqueo.motivo, ahora) })
+
+    // Dos bloqueos del mismo espacio no se pisan: si hace falta más tiempo,
+    // se edita el que ya existe
+    private fun exigirLibreDeBloqueos(bloqueo: Bloqueo) {
+        if (bloqueos.findSuperpuestos(bloqueo.espacio.id, bloqueo.franja).any { it.id != bloqueo.id }) {
+            throw BusinessException("Ya hay un bloqueo en ese horario")
+        }
+    }
 
     private fun exigirAdmin(usuarioId: Long): Usuario =
         usuarioService.porId(usuarioId).also {

@@ -1,97 +1,62 @@
-BEGIN
-
-== RESERVAS ==
-1. Reservar un turno ya reservado (Cancha 1, mañana 18 a 19). Esperado: ERROR ex_reserva_superpuesta
-SAVEPOINT
-ERROR:  conflicting key value violates exclusion constraint "ex_reserva_superpuesta"
-ROLLBACK
-2. Superposición parcial (Cancha 3 está de 19:30 a 21; pido de 20 a 21:30). Esperado: ERROR ex_reserva_superpuesta
-SAVEPOINT
-ERROR:  conflicting key value violates exclusion constraint "ex_reserva_superpuesta"
-ROLLBACK
-3. El turno siguiente (Cancha 1, mañana 19 a 20) no se pisa. Esperado: INSERT 0 1
-SAVEPOINT
-INSERT 0 1
-ROLLBACK
-4. Una reserva cancelada libera el turno (Parrilla 2, pasado mañana 10 a 14). Esperado: INSERT 0 1
-SAVEPOINT
-INSERT 0 1
-ROLLBACK
-5. Reservar un espacio bloqueado (Parrilla 3). Esperado: ERROR El espacio está bloqueado
-SAVEPOINT
-ERROR:  El espacio está bloqueado: Cambio de rejilla
-ROLLBACK
-6. Una reserva de 30 minutos en una cancha de turnos de 60. Esperado: ERROR Un turno de Cancha fútbol 5 dura 60 minutos
-SAVEPOINT
-ERROR:  Un turno de Cancha fútbol 5 dura 60 minutos
-ROLLBACK
-7. Una reserva después del cierre (22 a 23). Esperado: ERROR fuera del horario
-SAVEPOINT
-ERROR:  La reserva está fuera del horario de Cancha fútbol 5
-ROLLBACK
-8. Una reserva que termina antes de empezar. Esperado: ERROR ck_reserva_fin
-SAVEPOINT
-ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_fin"
-ROLLBACK
-9. Un estado que no existe. Esperado: ERROR ck_reserva_estado
-SAVEPOINT
-ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_estado"
-ROLLBACK
-10. Una reserva cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada
-SAVEPOINT
-ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_cancelada"
-ROLLBACK
-11. Una reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario
-SAVEPOINT
-ERROR:  insert or update on table "reserva" violates foreign key constraint "fk_reserva_usuario"
-ROLLBACK
-12. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio
-SAVEPOINT
-ERROR:  update or delete on table "espacio" violates foreign key constraint "fk_reserva_espacio" on table "reserva"
-ROLLBACK
 
 == USUARIOS ==
-13. Un mail que no es institucional. Esperado: ERROR ck_usuario_mail_institucional
-SAVEPOINT
-ERROR:  new row for relation "usuario" violates check constraint "ck_usuario_mail_institucional"
-ROLLBACK
-14. Un mail que ya está registrado. Esperado: ERROR uq_usuario_mail
-SAVEPOINT
+1. Mail que no es de la universidad. Esperado: ERROR ck_usuario_mail
+ERROR:  new row for relation "usuario" violates check constraint "ck_usuario_mail"
+2. Mail repetido. Esperado: ERROR uq_usuario_mail
 ERROR:  duplicate key value violates unique constraint "uq_usuario_mail"
-ROLLBACK
+3. Claustro que no existe. Esperado: ERROR ck_usuario_claustro
+ERROR:  new row for relation "usuario" violates check constraint "ck_usuario_claustro"
+
+== TIPOS Y ESPACIOS ==
+4. Turno de 0 minutos. Esperado: ERROR ck_tipo_espacio_duracion
+ERROR:  new row for relation "tipo_espacio" violates check constraint "ck_tipo_espacio_duracion"
+5. Cierra antes de abrir. Esperado: ERROR ck_tipo_espacio_horario
+ERROR:  new row for relation "tipo_espacio" violates check constraint "ck_tipo_espacio_horario"
+6. Espacio de un tipo que no existe. Esperado: ERROR fk_espacio_tipo
+ERROR:  insert or update on table "espacio" violates foreign key constraint "fk_espacio_tipo"
+7. Borrar un tipo que tiene espacios. Esperado: ERROR fk_espacio_tipo
+ERROR:  update or delete on table "tipo_espacio" violates foreign key constraint "fk_espacio_tipo" on table "espacio"
+
+== RESERVAS ==
+8. Reservar un turno ya reservado (Cancha 1, mañana de 18 a 19). Esperado: ERROR uq_reserva_turno
+ERROR:  duplicate key value violates unique constraint "uq_reserva_turno"
+9. El turno siguiente (Cancha 1, mañana de 19 a 20) está libre. Esperado: INSERT 0 1
+INSERT 0 1
+DELETE 1
+10. La reserva cancelada de Sofía libera el turno (Parrilla 2, pasado mañana a las 10). Esperado: INSERT 0 1
+INSERT 0 1
+DELETE 1
+11. Termina antes de empezar. Esperado: ERROR ck_reserva_fin
+ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_fin"
+12. Estado que no existe. Esperado: ERROR ck_reserva_estado
+ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_estado"
+13. Cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada
+ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_cancelada"
+14. Reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario
+ERROR:  insert or update on table "reserva" violates foreign key constraint "fk_reserva_usuario"
+15. Borrar a un usuario que tiene reservas. Esperado: ERROR fk_reserva_usuario
+ERROR:  update or delete on table "usuario" violates foreign key constraint "fk_reserva_usuario" on table "reserva"
+16. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio
+ERROR:  update or delete on table "espacio" violates foreign key constraint "fk_reserva_espacio" on table "reserva"
 
 == BLOQUEOS ==
-15. Un bloqueo cargado por alguien que no es admin. Esperado: ERROR Solo un administrador
-SAVEPOINT
-ERROR:  Solo un administrador puede bloquear espacios
-ROLLBACK
-16. Bloquear un horario con reservas confirmadas sin cancelarlas antes. Esperado: ERROR Hay reservas confirmadas
-SAVEPOINT
-ERROR:  Hay reservas confirmadas en ese horario: hay que cancelarlas antes de bloquear
-ROLLBACK
-17. Lo que va a hacer el backend: cancelar las reservas afectadas y bloquear, en la misma transacción. Esperado: UPDATE 1 e INSERT 0 1
-SAVEPOINT
- id | usuario_id |       inicio        |  estado   
-----+------------+---------------------+-----------
-  5 |          1 | 2026-11-07 18:00:00 | CANCELADA
+17. Bloqueo sin motivo. Esperado: ERROR ck_bloqueo_motivo
+ERROR:  new row for relation "bloqueo" violates check constraint "ck_bloqueo_motivo"
+18. Bloqueo que termina antes de empezar. Esperado: ERROR ck_bloqueo_fin
+ERROR:  new row for relation "bloqueo" violates check constraint "ck_bloqueo_fin"
+19. Borrar un espacio sin reservas borra sus bloqueos (CASCADE). Esperado: 0 bloqueos de Cancha 4
+INSERT 0 1
+INSERT 0 1
+DELETE 1
+ bloqueos_de_cancha_4 
+----------------------
+                    0
 (1 row)
 
-UPDATE 1
-INSERT 0 1
-ROLLBACK
-18. Dos bloqueos superpuestos en el mismo espacio. Esperado: ERROR ex_bloqueo_superpuesto
-SAVEPOINT
-ERROR:  conflicting key value violates exclusion constraint "ex_bloqueo_superpuesto"
-ROLLBACK
 
-== CONSULTA CON INFORMACIÓN RELACIONADA ==
-19. Las reservas de Juan, con espacio y tipo (vista reserva_detalle, JOIN de 4 tablas)
- espacio_nombre |  tipo_espacio   |   inicio    |  fin  |   estado   
-----------------+-----------------+-------------+-------+------------
- Cancha 1       | Cancha fútbol 5 | 03/11 18:00 | 19:00 | CONFIRMADA
- Cancha 1       | Cancha fútbol 5 | 06/11 21:00 | 22:00 | CONFIRMADA
- Cancha 1       | Cancha fútbol 5 | 07/11 18:00 | 19:00 | CONFIRMADA
- Cancha 2       | Cancha fútbol 5 | 09/11 18:00 | 19:00 | CONFIRMADA
-(4 rows)
+== Los datos quedaron como estaban ==
+ usuarios | espacios | reservas | bloqueos 
+----------+----------+----------+----------
+        7 |        6 |       11 |        2
+(1 row)
 
-ROLLBACK

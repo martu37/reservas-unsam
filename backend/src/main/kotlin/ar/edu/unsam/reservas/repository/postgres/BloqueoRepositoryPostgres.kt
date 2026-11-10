@@ -42,7 +42,7 @@ class BloqueoRepositoryPostgres(private val jdbc: NamedParameterJdbcTemplate) : 
             """
             $select
              WHERE b.espacio_id = :espacioId
-               AND tsrange(b.inicio, b.fin) && tsrange(CAST(:inicio AS timestamp), CAST(:fin AS timestamp))
+               AND b.inicio < :fin AND b.fin > :inicio
             """,
             mapOf("espacioId" to espacioId, "inicio" to franja.inicio, "fin" to franja.fin),
             mapper,

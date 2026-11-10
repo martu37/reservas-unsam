@@ -1,7 +1,6 @@
 package ar.edu.unsam.reservas.repository.postgres
 
 import ar.edu.unsam.reservas.domain.BusinessException
-import ar.edu.unsam.reservas.domain.TurnoNoDisponibleException
 import ar.edu.unsam.reservas.repository.BloqueoRepository
 import ar.edu.unsam.reservas.repository.EspacioRepository
 import ar.edu.unsam.reservas.repository.ReservaRepository
@@ -11,7 +10,6 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldStartWith
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,17 +39,7 @@ class BloqueoRepositoryPostgresTest(
     }
 
     @Test
-    fun `no deja bloquear un horario con reservas confirmadas sin cancelarlas antes`() {
-        reservas.create(reservaDePrueba(usuarios.conMail(JUAN), cancha3, franjaDePrueba("09:00", "10:30")))
-
-        val error = shouldThrow<TurnoNoDisponibleException> {
-            bloqueos.create(bloqueoDePrueba(cancha3, franjaDePrueba("09:00", "13:00"), daniela))
-        }
-        error.message!! shouldStartWith "Hay reservas confirmadas en ese horario"
-    }
-
-    @Test
-    fun `cancelando las reservas afectadas en la misma transacción, el bloqueo se crea`() {
+    fun `encuentra las reservas que caen dentro del bloqueo y, cancelándolas, lo crea`() {
         val franja = franjaDePrueba("09:00", "13:00")
         reservas.create(reservaDePrueba(usuarios.conMail(JUAN), cancha3, franjaDePrueba("09:00", "10:30")))
         val ahora = LocalDateTime.now()
@@ -68,11 +56,11 @@ class BloqueoRepositoryPostgresTest(
     }
 
     @Test
-    fun `la base no deja que cargue un bloqueo alguien que no es admin`() {
+    fun `la base rechaza un bloqueo sin motivo`() {
         val error = shouldThrow<BusinessException> {
-            bloqueos.create(bloqueoDePrueba(cancha3, franjaDePrueba("09:00", "13:00"), usuarios.conMail(JUAN)))
+            bloqueos.create(bloqueoDePrueba(cancha3, franjaDePrueba("09:00", "13:00"), daniela, motivo = ""))
         }
-        error.message shouldBe "Solo un administrador puede bloquear espacios"
+        error.message shouldBe "El bloqueo necesita un motivo"
     }
 
     @Test

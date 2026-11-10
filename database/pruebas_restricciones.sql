@@ -1,168 +1,111 @@
 -- Pruebas de las restricciones del modelo.
--- Cada prueba intenta algo y muestra si la base lo acepta o lo rechaza.
--- Todo corre en una transacción que al final se deshace: no modifica los datos.
+-- Cada prueba intenta algo que la base tiene que rechazar (o aceptar) y dice
+-- qué se espera. Lo que se acepta se borra al final de la prueba, así los
+-- datos iniciales quedan como estaban.
+-- Los id son los de datos_iniciales.sql (1 Juan, 2 Lucía... 1 Cancha 1...).
 --
 -- Cómo correrlo (con las bases levantadas):
---   docker exec -i reservas-postgres psql -U reservas -d reservas < database/pruebas_restricciones.sql
+--   docker exec -i reservas-postgres sh -c "psql -U reservas -d reservas 2>&1" < database/pruebas_restricciones.sql
+-- (el 2>&1 junta los errores con el resto de la salida, para que salgan en orden)
 
 \set VERBOSITY terse
-BEGIN;
-
-\echo
-\echo '== RESERVAS =='
-
-\echo '1. Reservar un turno ya reservado (Cancha 1, mañana 18 a 19). Esperado: ERROR ex_reserva_superpuesta'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'lucia.gomez@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 1 + TIME '18:00', CURRENT_DATE + 1 + TIME '19:00');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '2. Superposición parcial (Cancha 3 está de 19:30 a 21; pido de 20 a 21:30). Esperado: ERROR ex_reserva_superpuesta'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 3'),
-        CURRENT_DATE + 1 + TIME '20:00', CURRENT_DATE + 1 + TIME '21:30');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '3. El turno siguiente (Cancha 1, mañana 19 a 20) no se pisa. Esperado: INSERT 0 1'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'lucia.gomez@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 1 + TIME '19:00', CURRENT_DATE + 1 + TIME '20:00');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '4. Una reserva cancelada libera el turno (Parrilla 2, pasado mañana 10 a 14). Esperado: INSERT 0 1'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Parrilla 2'),
-        CURRENT_DATE + 2 + TIME '10:00', CURRENT_DATE + 2 + TIME '14:00');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '5. Reservar un espacio bloqueado (Parrilla 3). Esperado: ERROR El espacio está bloqueado'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Parrilla 3'),
-        CURRENT_DATE + 3 + TIME '10:00', CURRENT_DATE + 3 + TIME '14:00');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '6. Una reserva de 30 minutos en una cancha de turnos de 60. Esperado: ERROR Un turno de Cancha fútbol 5 dura 60 minutos'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '18:30');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '7. Una reserva después del cierre (22 a 23). Esperado: ERROR fuera del horario'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 5 + TIME '22:00', CURRENT_DATE + 5 + TIME '23:00');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '8. Una reserva que termina antes de empezar. Esperado: ERROR ck_reserva_fin'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado, cancelada_en)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 5 + TIME '19:00', CURRENT_DATE + 5 + TIME '18:00', 'CANCELADA', LOCALTIMESTAMP);
-ROLLBACK TO SAVEPOINT p;
-
-\echo '9. Un estado que no existe. Esperado: ERROR ck_reserva_estado'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado)
-VALUES ((SELECT id FROM usuario WHERE mail = 'tomas.diaz@estudiantes.unsam.edu.ar'),
-        (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00', 'PENDIENTE');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '10. Una reserva cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada'
-SAVEPOINT p;
-UPDATE reserva SET estado = 'CANCELADA'
- WHERE espacio_id = (SELECT id FROM espacio WHERE nombre = 'Cancha 1')
-   AND inicio = CURRENT_DATE + 1 + TIME '18:00';
-ROLLBACK TO SAVEPOINT p;
-
-\echo '11. Una reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario'
-SAVEPOINT p;
-INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
-VALUES (9999, (SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 6 + TIME '10:00', CURRENT_DATE + 6 + TIME '11:00');
-ROLLBACK TO SAVEPOINT p;
-
-\echo '12. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio'
-SAVEPOINT p;
-DELETE FROM espacio WHERE nombre = 'Cancha 1';
-ROLLBACK TO SAVEPOINT p;
 
 \echo
 \echo '== USUARIOS =='
 
-\echo '13. Un mail que no es institucional. Esperado: ERROR ck_usuario_mail_institucional'
-SAVEPOINT p;
-INSERT INTO usuario (mail, apellido, nombre, claustro) VALUES ('juanperez@gmail.com', 'Pérez', 'Juan', 'ESTUDIANTE');
-ROLLBACK TO SAVEPOINT p;
+\echo '1. Mail que no es de la universidad. Esperado: ERROR ck_usuario_mail'
+INSERT INTO usuario (mail, apellido, nombre, claustro)
+VALUES ('juan@gmail.com', 'Pérez', 'Juan', 'ESTUDIANTE');
 
-\echo '14. Un mail que ya está registrado. Esperado: ERROR uq_usuario_mail'
-SAVEPOINT p;
-INSERT INTO usuario (mail, apellido, nombre, claustro) VALUES ('juan.perez@estudiantes.unsam.edu.ar', 'Pérez', 'Juan', 'ESTUDIANTE');
-ROLLBACK TO SAVEPOINT p;
+\echo '2. Mail repetido. Esperado: ERROR uq_usuario_mail'
+INSERT INTO usuario (mail, apellido, nombre, claustro)
+VALUES ('juan.perez@estudiantes.unsam.edu.ar', 'Pérez', 'Juan', 'ESTUDIANTE');
+
+\echo '3. Claustro que no existe. Esperado: ERROR ck_usuario_claustro'
+INSERT INTO usuario (mail, apellido, nombre, claustro)
+VALUES ('ana@unsam.edu.ar', 'Ruiz', 'Ana', 'GRADUADO');
+
+\echo
+\echo '== TIPOS Y ESPACIOS =='
+
+\echo '4. Turno de 0 minutos. Esperado: ERROR ck_tipo_espacio_duracion'
+INSERT INTO tipo_espacio (nombre, duracion_min, hora_apertura, hora_cierre)
+VALUES ('Vóley', 0, '09:00', '20:00');
+
+\echo '5. Cierra antes de abrir. Esperado: ERROR ck_tipo_espacio_horario'
+INSERT INTO tipo_espacio (nombre, duracion_min, hora_apertura, hora_cierre)
+VALUES ('Vóley', 60, '20:00', '09:00');
+
+\echo '6. Espacio de un tipo que no existe. Esperado: ERROR fk_espacio_tipo'
+INSERT INTO espacio (nombre, tipo_espacio_id, ubicacion)
+VALUES ('Cancha 4', 99, 'Sector deportivo');
+
+\echo '7. Borrar un tipo que tiene espacios. Esperado: ERROR fk_espacio_tipo'
+DELETE FROM tipo_espacio WHERE id = 1;
+
+\echo
+\echo '== RESERVAS =='
+
+\echo '8. Reservar un turno ya reservado (Cancha 1, mañana de 18 a 19). Esperado: ERROR uq_reserva_turno'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
+VALUES (2, 1, CURRENT_DATE + 1 + TIME '18:00', CURRENT_DATE + 1 + TIME '19:00');
+
+\echo '9. El turno siguiente (Cancha 1, mañana de 19 a 20) está libre. Esperado: INSERT 0 1'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
+VALUES (2, 1, CURRENT_DATE + 1 + TIME '19:00', CURRENT_DATE + 1 + TIME '20:00');
+DELETE FROM reserva WHERE espacio_id = 1 AND inicio = CURRENT_DATE + 1 + TIME '19:00';
+
+\echo '10. La reserva cancelada de Sofía libera el turno (Parrilla 2, pasado mañana a las 10). Esperado: INSERT 0 1'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
+VALUES (6, 5, CURRENT_DATE + 2 + TIME '10:00', CURRENT_DATE + 2 + TIME '14:00');
+DELETE FROM reserva WHERE espacio_id = 5 AND estado = 'CONFIRMADA';
+
+\echo '11. Termina antes de empezar. Esperado: ERROR ck_reserva_fin'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
+VALUES (1, 1, CURRENT_DATE + 5 + TIME '19:00', CURRENT_DATE + 5 + TIME '18:00');
+
+\echo '12. Estado que no existe. Esperado: ERROR ck_reserva_estado'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado)
+VALUES (1, 1, CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00', 'PENDIENTE');
+
+\echo '13. Cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado)
+VALUES (1, 1, CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00', 'CANCELADA');
+
+\echo '14. Reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
+VALUES (99, 1, CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00');
+
+\echo '15. Borrar a un usuario que tiene reservas. Esperado: ERROR fk_reserva_usuario'
+DELETE FROM usuario WHERE id = 1;
+
+\echo '16. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio'
+DELETE FROM espacio WHERE id = 1;
 
 \echo
 \echo '== BLOQUEOS =='
 
-\echo '15. Un bloqueo cargado por alguien que no es admin. Esperado: ERROR Solo un administrador'
-SAVEPOINT p;
+\echo '17. Bloqueo sin motivo. Esperado: ERROR ck_bloqueo_motivo'
 INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
-VALUES ((SELECT id FROM espacio WHERE nombre = 'Cancha 3'),
-        CURRENT_DATE + 6 + TIME '09:00', CURRENT_DATE + 6 + TIME '12:00', 'Arreglo de red',
-        (SELECT id FROM usuario WHERE mail = 'juan.perez@estudiantes.unsam.edu.ar'));
-ROLLBACK TO SAVEPOINT p;
+VALUES (3, CURRENT_DATE + 5 + TIME '09:00', CURRENT_DATE + 5 + TIME '13:00', '', 5);
 
-\echo '16. Bloquear un horario con reservas confirmadas sin cancelarlas antes. Esperado: ERROR Hay reservas confirmadas'
-SAVEPOINT p;
+\echo '18. Bloqueo que termina antes de empezar. Esperado: ERROR ck_bloqueo_fin'
 INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
-VALUES ((SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 1 + TIME '17:00', CURRENT_DATE + 1 + TIME '20:00', 'Arco roto',
-        (SELECT id FROM usuario WHERE mail = 'dfernandez@unsam.edu.ar'));
-ROLLBACK TO SAVEPOINT p;
+VALUES (3, CURRENT_DATE + 5 + TIME '13:00', CURRENT_DATE + 5 + TIME '09:00', 'Pintura', 5);
 
-\echo '17. Lo que va a hacer el backend: cancelar las reservas afectadas y bloquear, en la misma transacción. Esperado: UPDATE 1 e INSERT 0 1'
-SAVEPOINT p;
-UPDATE reserva SET estado = 'CANCELADA', cancelada_en = LOCALTIMESTAMP
- WHERE espacio_id = (SELECT id FROM espacio WHERE nombre = 'Cancha 1')
-   AND estado = 'CONFIRMADA'
-   AND inicio > LOCALTIMESTAMP
-   AND tsrange(inicio, fin) && tsrange(CURRENT_DATE + 1 + TIME '17:00', CURRENT_DATE + 1 + TIME '20:00')
-RETURNING id, usuario_id, inicio, estado;
+\echo '19. Borrar un espacio sin reservas borra sus bloqueos (CASCADE). Esperado: 0 bloqueos de Cancha 4'
+INSERT INTO espacio (nombre, tipo_espacio_id, ubicacion) VALUES ('Cancha 4', 1, 'Sector deportivo');
 INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
-VALUES ((SELECT id FROM espacio WHERE nombre = 'Cancha 1'),
-        CURRENT_DATE + 1 + TIME '17:00', CURRENT_DATE + 1 + TIME '20:00', 'Arco roto',
-        (SELECT id FROM usuario WHERE mail = 'dfernandez@unsam.edu.ar'));
-ROLLBACK TO SAVEPOINT p;
-
-\echo '18. Dos bloqueos superpuestos en el mismo espacio. Esperado: ERROR ex_bloqueo_superpuesto'
-SAVEPOINT p;
-INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
-VALUES ((SELECT id FROM espacio WHERE nombre = 'Parrilla 3'),
-        CURRENT_DATE + 5 + TIME '10:00', CURRENT_DATE + 5 + TIME '14:00', 'Pintura',
-        (SELECT id FROM usuario WHERE mail = 'dfernandez@unsam.edu.ar'));
-ROLLBACK TO SAVEPOINT p;
+VALUES ((SELECT id FROM espacio WHERE nombre = 'Cancha 4'),
+        CURRENT_DATE + 5 + TIME '09:00', CURRENT_DATE + 5 + TIME '13:00', 'Pintura', 5);
+DELETE FROM espacio WHERE nombre = 'Cancha 4';
+SELECT count(*) AS bloqueos_de_cancha_4
+  FROM bloqueo
+ WHERE espacio_id NOT IN (SELECT id FROM espacio);
 
 \echo
-\echo '== CONSULTA CON INFORMACIÓN RELACIONADA =='
-\echo '19. Las reservas de Juan, con espacio y tipo (vista reserva_detalle, JOIN de 4 tablas)'
-SELECT espacio_nombre, tipo_espacio, to_char(inicio, 'DD/MM HH24:MI') AS inicio,
-       to_char(fin, 'HH24:MI') AS fin, estado
-  FROM reserva_detalle
- WHERE usuario_mail = 'juan.perez@estudiantes.unsam.edu.ar'
- ORDER BY inicio;
-
-ROLLBACK;
+\echo '== Los datos quedaron como estaban =='
+SELECT (SELECT count(*) FROM usuario) AS usuarios,
+       (SELECT count(*) FROM espacio) AS espacios,
+       (SELECT count(*) FROM reserva) AS reservas,
+       (SELECT count(*) FROM bloqueo) AS bloqueos;

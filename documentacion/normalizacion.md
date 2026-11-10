@@ -123,9 +123,9 @@ Además de normalizar, ajustamos el modelo al sistema nuevo:
    `inicio` y `fin` (fecha y hora). Con eso la base puede comparar rangos y
    prohibir superposiciones.
 3. **`fin` se guarda aunque se pueda calcular** (inicio + duración del tipo). Lo
-   guardamos porque la restricción contra superposiciones necesita el rango
-   completo, y porque si mañana cambia la duración de un tipo las reservas viejas
-   tienen que conservar su horario original.
+   guardamos porque si mañana cambia la duración de un tipo, las reservas viejas
+   tienen que conservar su horario original. Además, para saber si una reserva
+   cae dentro de un bloqueo se compara su inicio y su fin con los del bloqueo.
 4. **Los rechazos no son reservas.** En el sistema nuevo un pedido sobre un turno
    ocupado se rechaza en el momento y no se guarda como reserva. El intento queda
    en el historial de eventos (MongoDB). Por eso RESERVA solo tiene los estados

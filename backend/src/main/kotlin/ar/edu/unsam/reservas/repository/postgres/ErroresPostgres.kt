@@ -5,17 +5,18 @@ import ar.edu.unsam.reservas.domain.TurnoNoDisponibleException
 import org.postgresql.util.PSQLException
 import org.springframework.dao.DataAccessException
 
-// Cuando la base rechaza algo (EXCLUDE, CHECK, FK o un RAISE de un trigger),
-// Spring lanza una DataAccessException. Acá se traduce a las excepciones del
-// dominio, así el resto del backend no conoce los errores de PostgreSQL.
+// Cuando la base rechaza algo (UNIQUE, CHECK o FK), Spring lanza una
+// DataAccessException. Acá se traduce a las excepciones del dominio, así el
+// resto del backend no conoce los errores de PostgreSQL.
 
-private const val EXCLUSION = "23P01" // EXCLUDE, y los triggers de "turno no disponible"
+// El índice único de reserva: alguien reservó ese turno antes
+private const val TURNO_TOMADO = "uq_reserva_turno"
 
 private val MENSAJES = mapOf(
-    "ex_reserva_superpuesta" to "El turno ya está reservado",
-    "ex_bloqueo_superpuesto" to "Ya hay un bloqueo en ese horario",
+    TURNO_TOMADO to "El turno ya está reservado",
     "uq_usuario_mail" to "Ya hay un usuario con ese mail",
-    "ck_usuario_mail_institucional" to "Hay que usar el mail institucional de la universidad",
+    "ck_usuario_mail" to "Hay que usar el mail institucional de la universidad",
+    "ck_bloqueo_motivo" to "El bloqueo necesita un motivo",
     "fk_reserva_espacio" to "El espacio tiene reservas y no se puede borrar",
     "fk_reserva_usuario" to "El usuario no existe o tiene reservas",
     "fk_bloqueo_creado_por" to "El usuario no existe o cargó bloqueos",
@@ -32,12 +33,10 @@ private fun traducir(error: DataAccessException): RuntimeException {
     val psql = generateSequence<Throwable>(error) { it.cause }
         .filterIsInstance<PSQLException>()
         .firstOrNull() ?: return error
-    val servidor = psql.serverErrorMessage
-    val mensaje = MENSAJES[servidor?.constraint] ?: servidor?.message ?: "Error en la base de datos"
+    val restriccion = psql.serverErrorMessage?.constraint
+    val mensaje = MENSAJES[restriccion] ?: psql.serverErrorMessage?.message ?: "Error en la base de datos"
 
-    // El resto (P0001 de un RAISE, 23505 UNIQUE, 23514 CHECK, 23503 FK) es una
-    // regla de negocio que no se cumple
-    return if (psql.sqlState == EXCLUSION) {
+    return if (restriccion == TURNO_TOMADO) {
         TurnoNoDisponibleException(mensaje)
     } else {
         BusinessException(mensaje)
