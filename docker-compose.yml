@@ -1,5 +1,11 @@
-# Levantar las bases:          docker compose up -d
-# Borrar todo y empezar de 0:  docker compose down -v
+# Servicios:
+#   frontend  React servido con nginx   -> http://localhost:5173
+#   backend   API Spring Boot           -> http://localhost:8080
+#   postgres  PostgreSQL 16             -> localhost:5432
+#   mongo     MongoDB 7                 -> localhost:27017
+#
+# Levantar todo:               make start   (o docker compose up -d --build)
+# Borrar todo y empezar de 0:  make reset
 #
 # Los scripts de database/ se ejecutan solos la PRIMERA vez que se crea la base.
 # Si cambiás un .sql: docker compose down -v && docker compose up -d
@@ -21,6 +27,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database/modelo_relacional.sql:/docker-entrypoint-initdb.d/01-modelo.sql:ro
       - ./database/datos_iniciales.sql:/docker-entrypoint-initdb.d/02-datos.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "reservas", "-d", "reservas"]
+      interval: 2s
+      retries: 30
 
   mongo:
     image: mongo:7
@@ -29,6 +39,28 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: reservas-backend
+    environment:
+      # Dentro de docker la base no está en localhost sino en el servicio "postgres"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/reservas
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # El navegador le pega al backend en localhost:8080 (puerto publicado arriba)
+  frontend:
+    build: ./frontend
+    container_name: reservas-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
