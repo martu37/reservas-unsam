@@ -49,40 +49,42 @@ documentacion/   normalización, DER y el detalle de cada parte
 
 ## Cómo levantarlo
 
-Hace falta Docker Desktop abierto, Java 21, Node 20 o superior y pnpm.
-
-**1. Las bases** (desde la carpeta del proyecto):
+Hace falta Docker Desktop abierto y make. Desde la carpeta del proyecto:
 
 ```
-docker compose up -d
+make start
 ```
 
-**2. El backend** (en otra terminal), queda en `http://localhost:8080`:
+Construye y levanta todo en Docker (las bases, el backend y el frontend) y
+devuelve la terminal. La primera vez tarda unos minutos porque compila.
 
-```
-cd backend
-./gradlew bootRun
-```
+El `docker-compose.yml` define cuatro servicios, cada uno en su contenedor:
 
-**3. El frontend** (en otra terminal), queda en `http://localhost:5173`:
+| Servicio | Qué es | Puerto |
+|---|---|---|
+| `frontend` | la interfaz en React, servida con nginx | `http://localhost:5173` |
+| `backend` | la API en Kotlin + Spring Boot | `http://localhost:8080` |
+| `postgres` | PostgreSQL 16 con el modelo y los datos de `database/` | `5432` |
+| `mongo` | MongoDB 7 | `27017` |
 
-```
-cd frontend
-pnpm install
-pnpm dev
-```
+El backend espera a que `postgres` esté listo antes de arrancar y se conecta a
+él por el nombre del servicio (`postgres`), no por `localhost`.
+
+| Comando | Qué hace |
+|---|---|
+| `make start` | levanta todo (si cambió el código, lo recompila) |
+| `make restart` | después de editar código: recompila y reinicia backend y frontend, sin tocar las bases |
+| `make logs` | muestra los logs de backend y frontend en vivo |
+| `make stop` | baja todo |
+| `make reset` | borra los datos, vuelve a cargar los scripts de `database/` y levanta todo |
+| `make db` | levanta solo las bases, para correr backend y frontend fuera de Docker |
 
 En la app, desde "Usando como" se cambia de usuario. Daniela Fernández es admin
 y ve la sección de bloqueos.
 
 **Si cambiaron los scripts de `database/`:** se cargan solo cuando la base está
-vacía, así que hay que borrar los datos y volver a levantar. Ojo, esto borra
-también lo que haya en MongoDB.
-
-```
-docker compose down -v
-docker compose up -d
-```
+vacía, así que hay que correr `make reset`. Ojo, esto borra también lo que haya
+en MongoDB.
 
 ## Estado
 
