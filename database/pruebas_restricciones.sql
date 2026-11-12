@@ -50,50 +50,54 @@ DELETE FROM tipo_espacio WHERE id = 1;
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
 VALUES (2, 1, CURRENT_DATE + 1 + TIME '18:00', CURRENT_DATE + 1 + TIME '19:00');
 
-\echo '9. El turno siguiente (Cancha 1, mañana de 19 a 20) está libre. Esperado: INSERT 0 1'
+\echo '9. La misma persona en otro espacio a la misma hora (Juan ya tiene Cancha 1 mañana a las 18, pide Cancha 3). Esperado: ERROR uq_reserva_usuario_turno'
+INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
+VALUES (1, 3, CURRENT_DATE + 1 + TIME '18:00', CURRENT_DATE + 1 + TIME '19:30');
+
+\echo '10. El turno siguiente (Cancha 1, mañana de 19 a 20) está libre. Esperado: INSERT 0 1'
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
 VALUES (2, 1, CURRENT_DATE + 1 + TIME '19:00', CURRENT_DATE + 1 + TIME '20:00');
 DELETE FROM reserva WHERE espacio_id = 1 AND inicio = CURRENT_DATE + 1 + TIME '19:00';
 
-\echo '10. La reserva cancelada de Sofía libera el turno (Parrilla 2, pasado mañana a las 10). Esperado: INSERT 0 1'
+\echo '11. La reserva cancelada de Sofía libera el turno (Parrilla 2, pasado mañana a las 10). Esperado: INSERT 0 1'
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
 VALUES (6, 5, CURRENT_DATE + 2 + TIME '10:00', CURRENT_DATE + 2 + TIME '14:00');
 DELETE FROM reserva WHERE espacio_id = 5 AND estado = 'CONFIRMADA';
 
-\echo '11. Termina antes de empezar. Esperado: ERROR ck_reserva_fin'
+\echo '12. Termina antes de empezar. Esperado: ERROR ck_reserva_fin'
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
 VALUES (1, 1, CURRENT_DATE + 5 + TIME '19:00', CURRENT_DATE + 5 + TIME '18:00');
 
-\echo '12. Estado que no existe. Esperado: ERROR ck_reserva_estado'
+\echo '13. Estado que no existe. Esperado: ERROR ck_reserva_estado'
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado)
 VALUES (1, 1, CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00', 'PENDIENTE');
 
-\echo '13. Cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada'
+\echo '14. Cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada'
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin, estado)
 VALUES (1, 1, CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00', 'CANCELADA');
 
-\echo '14. Reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario'
+\echo '15. Reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario'
 INSERT INTO reserva (usuario_id, espacio_id, inicio, fin)
 VALUES (99, 1, CURRENT_DATE + 5 + TIME '18:00', CURRENT_DATE + 5 + TIME '19:00');
 
-\echo '15. Borrar a un usuario que tiene reservas. Esperado: ERROR fk_reserva_usuario'
+\echo '16. Borrar a un usuario que tiene reservas. Esperado: ERROR fk_reserva_usuario'
 DELETE FROM usuario WHERE id = 1;
 
-\echo '16. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio'
+\echo '17. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio'
 DELETE FROM espacio WHERE id = 1;
 
 \echo
 \echo '== BLOQUEOS =='
 
-\echo '17. Bloqueo sin motivo. Esperado: ERROR ck_bloqueo_motivo'
+\echo '18. Bloqueo sin motivo. Esperado: ERROR ck_bloqueo_motivo'
 INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
 VALUES (3, CURRENT_DATE + 5 + TIME '09:00', CURRENT_DATE + 5 + TIME '13:00', '', 5);
 
-\echo '18. Bloqueo que termina antes de empezar. Esperado: ERROR ck_bloqueo_fin'
+\echo '19. Bloqueo que termina antes de empezar. Esperado: ERROR ck_bloqueo_fin'
 INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
 VALUES (3, CURRENT_DATE + 5 + TIME '13:00', CURRENT_DATE + 5 + TIME '09:00', 'Pintura', 5);
 
-\echo '19. Borrar un espacio sin reservas borra sus bloqueos (CASCADE). Esperado: 0 bloqueos de Cancha 4'
+\echo '20. Borrar un espacio sin reservas borra sus bloqueos (CASCADE). Esperado: 0 bloqueos de Cancha 4'
 INSERT INTO espacio (nombre, tipo_espacio_id, ubicacion) VALUES ('Cancha 4', 1, 'Sector deportivo');
 INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
 VALUES ((SELECT id FROM espacio WHERE nombre = 'Cancha 4'),

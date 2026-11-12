@@ -64,6 +64,20 @@ class ReservaServiceTest(
     }
 
     @Test
+    fun `una persona no puede reservar dos espacios a la misma hora y el intento queda en el historial`() {
+        reservaService.reservar(juan, cancha1, franjaDePrueba("10:00", "11:00"))
+
+        val error = shouldThrow<TurnoNoDisponibleException> {
+            reservaService.reservar(juan, espacios.llamado("Cancha 2").id, franjaDePrueba("10:00", "11:00"))
+        }
+
+        error.message shouldBe "Ya tenés una reserva en ese horario"
+        val evento = historial.deUsuario(juan).first()
+        evento.tipo shouldBe TipoEvento.RESERVA_RECHAZADA
+        evento.detalle["espacio"] shouldBe "Cancha 2"
+    }
+
+    @Test
     fun `no se puede reservar un espacio que no existe`() {
         shouldThrow<NotFoundException> {
             reservaService.reservar(juan, 9999, franjaDePrueba("10:00", "11:00"))

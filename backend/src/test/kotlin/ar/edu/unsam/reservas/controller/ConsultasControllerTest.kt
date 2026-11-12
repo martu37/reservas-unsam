@@ -90,7 +90,7 @@ class ConsultasControllerTest(
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.motor").value("postgres"))
             .andExpect(jsonPath("$.eventos[0].tipo").value("reserva_rechazada"))
-            .andExpect(jsonPath("$.eventos[0].detalle.motivo").value("El turno ya está reservado"))
+            .andExpect(jsonPath("$.eventos[0].detalle.motivo").value("Ya tenés una reserva en ese horario"))
             .andExpect(jsonPath("$.eventos[0].detalle.inicio").value(hora("10:00")))
             .andExpect(jsonPath("$.eventos[1].tipo").value("reserva_creada"))
     }

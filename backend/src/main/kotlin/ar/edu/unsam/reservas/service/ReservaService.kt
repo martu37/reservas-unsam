@@ -33,6 +33,7 @@ class ReservaService(
 
         val reserva = try {
             transaccion.execute {
+                usuario.exigirLibreEn(franja, reservas.findByUsuario(usuarioId))
                 val nueva = espacio.reservar(
                     usuario,
                     franja,
@@ -40,8 +41,9 @@ class ReservaService(
                     bloqueos.findSuperpuestos(espacioId, franja),
                     ahora,
                 )
-                // Si otra persona reservó el mismo turno entre la consulta y este
-                // INSERT, lo frena el EXCLUDE de la base y llega acá la misma excepción
+                // Si otro pedido reservó el mismo turno entre la consulta y este
+                // INSERT, lo frenan los índices únicos de la base y llega acá la
+                // misma excepción
                 reservas.create(nueva)
             }!!
         } catch (rechazo: TurnoNoDisponibleException) {

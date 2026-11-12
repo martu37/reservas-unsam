@@ -9,11 +9,14 @@ import org.springframework.dao.DataAccessException
 // DataAccessException. Acá se traduce a las excepciones del dominio, así el
 // resto del backend no conoce los errores de PostgreSQL.
 
-// El índice único de reserva: alguien reservó ese turno antes
+// Los índices únicos de reserva: alguien reservó ese turno antes, o la misma
+// persona ya tiene otra reserva a esa hora
 private const val TURNO_TOMADO = "uq_reserva_turno"
+private const val USUARIO_OCUPADO = "uq_reserva_usuario_turno"
 
 private val MENSAJES = mapOf(
     TURNO_TOMADO to "El turno ya está reservado",
+    USUARIO_OCUPADO to "Ya tenés una reserva en ese horario",
     "uq_usuario_mail" to "Ya hay un usuario con ese mail",
     "ck_usuario_mail" to "Hay que usar el mail institucional de la universidad",
     "ck_bloqueo_motivo" to "El bloqueo necesita un motivo",
@@ -36,7 +39,7 @@ private fun traducir(error: DataAccessException): RuntimeException {
     val restriccion = psql.serverErrorMessage?.constraint
     val mensaje = MENSAJES[restriccion] ?: psql.serverErrorMessage?.message ?: "Error en la base de datos"
 
-    return if (restriccion == TURNO_TOMADO) {
+    return if (restriccion == TURNO_TOMADO || restriccion == USUARIO_OCUPADO) {
         TurnoNoDisponibleException(mensaje)
     } else {
         BusinessException(mensaje)

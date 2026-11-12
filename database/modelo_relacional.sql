@@ -82,6 +82,13 @@ CREATE TABLE reserva (
 CREATE UNIQUE INDEX uq_reserva_turno ON reserva (espacio_id, inicio)
     WHERE estado = 'CONFIRMADA';
 
+-- Lo mismo para cada persona: no puede tener dos reservas confirmadas que
+-- empiecen a la misma hora (por ejemplo Cancha 1 y Cancha 2 a las 18 "por las
+-- dudas"). Si se pisan con distinto inicio (fútbol 7 a las 19:30 y fútbol 5 a
+-- las 20) lo controla el backend.
+CREATE UNIQUE INDEX uq_reserva_usuario_turno ON reserva (usuario_id, inicio)
+    WHERE estado = 'CONFIRMADA';
+
 -- "Mis reservas" busca por usuario y ordena por fecha
 CREATE INDEX ix_reserva_usuario_inicio ON reserva (usuario_id, inicio);
 -- La grilla del día busca por espacio y fecha

@@ -24,6 +24,15 @@ class Usuario {
 
     fun esAdmin() = rol == Rol.ADMIN
 
+    // Una persona no puede estar en dos lugares a la vez: si ya tiene una
+    // reserva que se pisa con ese horario (en cualquier espacio), no reserva otra.
+    // La base lo controla también con uq_reserva_usuario_turno.
+    fun exigirLibreEn(franja: Franja, susReservas: List<Reserva>) {
+        if (susReservas.any { it.ocupa(franja) }) {
+            throw TurnoNoDisponibleException("Ya tenés una reserva en ese horario")
+        }
+    }
+
     fun validate() {
         if (!MAIL_INSTITUCIONAL.matches(mail.trim().lowercase())) {
             throw BusinessException("Hay que usar el mail institucional de la universidad")

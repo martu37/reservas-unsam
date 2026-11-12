@@ -22,6 +22,9 @@ su espacio y su tipo (JOIN de 4 tablas).
 - **Un turno no se reserva dos veces.** Lo controla el índice único
   `uq_reserva_turno`: no puede haber dos reservas confirmadas del mismo espacio
   que empiecen a la misma hora. Las canceladas no cuentan.
+- **Una persona no está en dos lugares a la vez.** Con la misma idea,
+  `uq_reserva_usuario_turno` no deja que alguien tenga dos reservas confirmadas
+  que empiecen a la misma hora (por ejemplo Cancha 1 y Cancha 2 a las 18).
 - **No se borra lo que tiene historia.** Un usuario o un espacio con reservas no
   se puede borrar (`ON DELETE RESTRICT`). Si se borra un espacio sin reservas,
   sus bloqueos se borran con él (`ON DELETE CASCADE`).

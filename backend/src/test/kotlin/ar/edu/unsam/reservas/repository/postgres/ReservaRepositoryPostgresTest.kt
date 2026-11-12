@@ -61,6 +61,16 @@ class ReservaRepositoryPostgresTest(
     }
 
     @Test
+    fun `el índice único por usuario rechaza a la misma persona en dos espacios a la misma hora`() {
+        reservas.create(reservaDePrueba(juan, cancha1, franjaDePrueba("10:00", "11:00")))
+
+        val error = shouldThrow<TurnoNoDisponibleException> {
+            reservas.create(reservaDePrueba(juan, espacios.llamado("Cancha 2"), franjaDePrueba("10:00", "11:00")))
+        }
+        error.message shouldBe "Ya tenés una reserva en ese horario"
+    }
+
+    @Test
     fun `una reserva cancelada libera el turno`() {
         val reserva = reservas.create(reservaDePrueba(juan, cancha1, franjaDePrueba("10:00", "11:00")))
 

@@ -20,31 +20,33 @@ ERROR:  update or delete on table "tipo_espacio" violates foreign key constraint
 == RESERVAS ==
 8. Reservar un turno ya reservado (Cancha 1, mañana de 18 a 19). Esperado: ERROR uq_reserva_turno
 ERROR:  duplicate key value violates unique constraint "uq_reserva_turno"
-9. El turno siguiente (Cancha 1, mañana de 19 a 20) está libre. Esperado: INSERT 0 1
+9. La misma persona en otro espacio a la misma hora (Juan ya tiene Cancha 1 mañana a las 18, pide Cancha 3). Esperado: ERROR uq_reserva_usuario_turno
+ERROR:  duplicate key value violates unique constraint "uq_reserva_usuario_turno"
+10. El turno siguiente (Cancha 1, mañana de 19 a 20) está libre. Esperado: INSERT 0 1
 INSERT 0 1
 DELETE 1
-10. La reserva cancelada de Sofía libera el turno (Parrilla 2, pasado mañana a las 10). Esperado: INSERT 0 1
+11. La reserva cancelada de Sofía libera el turno (Parrilla 2, pasado mañana a las 10). Esperado: INSERT 0 1
 INSERT 0 1
 DELETE 1
-11. Termina antes de empezar. Esperado: ERROR ck_reserva_fin
+12. Termina antes de empezar. Esperado: ERROR ck_reserva_fin
 ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_fin"
-12. Estado que no existe. Esperado: ERROR ck_reserva_estado
+13. Estado que no existe. Esperado: ERROR ck_reserva_estado
 ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_estado"
-13. Cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada
+14. Cancelada sin fecha de cancelación. Esperado: ERROR ck_reserva_cancelada
 ERROR:  new row for relation "reserva" violates check constraint "ck_reserva_cancelada"
-14. Reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario
+15. Reserva de un usuario que no existe. Esperado: ERROR fk_reserva_usuario
 ERROR:  insert or update on table "reserva" violates foreign key constraint "fk_reserva_usuario"
-15. Borrar a un usuario que tiene reservas. Esperado: ERROR fk_reserva_usuario
+16. Borrar a un usuario que tiene reservas. Esperado: ERROR fk_reserva_usuario
 ERROR:  update or delete on table "usuario" violates foreign key constraint "fk_reserva_usuario" on table "reserva"
-16. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio
+17. Borrar un espacio que tiene reservas. Esperado: ERROR fk_reserva_espacio
 ERROR:  update or delete on table "espacio" violates foreign key constraint "fk_reserva_espacio" on table "reserva"
 
 == BLOQUEOS ==
-17. Bloqueo sin motivo. Esperado: ERROR ck_bloqueo_motivo
+18. Bloqueo sin motivo. Esperado: ERROR ck_bloqueo_motivo
 ERROR:  new row for relation "bloqueo" violates check constraint "ck_bloqueo_motivo"
-18. Bloqueo que termina antes de empezar. Esperado: ERROR ck_bloqueo_fin
+19. Bloqueo que termina antes de empezar. Esperado: ERROR ck_bloqueo_fin
 ERROR:  new row for relation "bloqueo" violates check constraint "ck_bloqueo_fin"
-19. Borrar un espacio sin reservas borra sus bloqueos (CASCADE). Esperado: 0 bloqueos de Cancha 4
+20. Borrar un espacio sin reservas borra sus bloqueos (CASCADE). Esperado: 0 bloqueos de Cancha 4
 INSERT 0 1
 INSERT 0 1
 DELETE 1

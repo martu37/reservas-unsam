@@ -75,6 +75,7 @@ y probadas en [`pruebas_restricciones.sql`](../database/pruebas_restricciones.sq
 | regla | cómo la garantiza la base |
 |---|---|
 | Un turno no se reserva dos veces: no hay dos reservas **confirmadas** del mismo espacio con el mismo inicio | índice único `uq_reserva_turno (espacio_id, inicio) WHERE estado = 'CONFIRMADA'` |
+| Una persona no tiene dos reservas **confirmadas** que empiecen a la misma hora (en espacios distintos) | índice único `uq_reserva_usuario_turno (usuario_id, inicio) WHERE estado = 'CONFIRMADA'` |
 | `fin` es posterior a `inicio`, en reservas y bloqueos | `CHECK` |
 | Si la reserva está cancelada tiene `cancelada_en`; si no, no | `CHECK` |
 | Estado, claustro y rol solo toman los valores permitidos | `CHECK ... IN (...)` |
@@ -86,6 +87,9 @@ y probadas en [`pruebas_restricciones.sql`](../database/pruebas_restricciones.sq
 Alcanza con mirar el inicio porque los turnos son fijos: salen de la duración y
 el horario del tipo de espacio (por ejemplo, fútbol 5 de 9 a 10, de 10 a 11...).
 Dos reservas del mismo espacio solo se pueden pisar si empiezan a la misma hora.
+Para la misma persona en espacios distintos no alcanza: los turnos de fútbol 7
+(90 min) no empiezan cuando los de fútbol 5, así que una reserva de 19:30 a 21
+se pisa con una de 20 a 21. Por eso esa regla la completa el backend.
 
 ### Reglas que controla el backend
 
@@ -94,12 +98,15 @@ fila que se está guardando. Esas las controla el backend antes de guardar:
 
 - que el horario pedido sea un turno del tipo de espacio y no haya pasado;
 - que el espacio esté activo y no esté bloqueado en ese horario;
+- que la persona no tenga otra reserva que se pise con ese horario, en ningún espacio;
 - que solo un admin cargue bloqueos, y que dos bloqueos del mismo espacio no se pisen.
 
 La que no puede fallar nunca, que un turno no se reserve dos veces, la controla
 además la base con el índice único. Así, aunque dos personas reserven el mismo
 turno en el mismo momento y las dos pasen el control del backend, la base deja
-guardar solo una.
+guardar solo una (lo probamos mandando 6 pedidos a la vez: entró uno y los otros
+cinco los frenó `uq_reserva_turno`). Lo mismo con `uq_reserva_usuario_turno` si
+una persona manda dos pedidos a la vez para la misma hora.
 
 **Decisión sobre los bloqueos:** si un admin bloquea un horario con reservas
 confirmadas, esas reservas se cancelan. El backend las cancela y crea el bloqueo
