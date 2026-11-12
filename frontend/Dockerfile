@@ -5,6 +5,9 @@ RUN npm install -g pnpm@12.3.4
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
+# La dirección del backend queda fija al compilar. En Railway se pasa como
+# variable; si no se pasa, el front usa http://localhost:8080
+ARG VITE_API_URL
 RUN pnpm build
 
 FROM nginx:1.27-alpine

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = ["\${cors.origen}"])
 class EspacioController(private val espacioService: EspacioService) {
 
     @GetMapping("/espacios")

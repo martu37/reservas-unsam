@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 // Quién hace el pedido llega como ?usuarioId=. No hay login: en la demo se elige
 // el usuario en el front ("Usando como"). Con login saldría de la sesión.
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = ["\${cors.origen}"])
 class ReservaController(private val reservaService: ReservaService) {
 
     @GetMapping("/usuarios/{usuarioId}/reservas")

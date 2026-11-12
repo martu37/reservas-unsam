@@ -1,5 +1,6 @@
 server:
-  port: 8080
+  # Railway le avisa al backend en qué puerto escuchar con PORT; en la compu, 8080
+  port: ${PORT:8080}
   error:
     whitelabel:
       enabled: false
@@ -18,3 +19,7 @@ spring:
 # Dónde se guarda el historial: mongo (el principal) o postgres (el respaldo)
 historial:
   motor: mongo
+
+# Desde qué dirección puede llamar el front (en Railway: CORS_ORIGEN con la del front)
+cors:
+  origen: http://localhost:5173

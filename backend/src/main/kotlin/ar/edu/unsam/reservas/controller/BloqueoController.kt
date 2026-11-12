@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 // El CRUD de bloqueos. Las altas, cambios y bajas las hace un admin:
 // el service controla que ?usuarioId= sea administrador.
 @RestController
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = ["\${cors.origen}"])
 class BloqueoController(private val bloqueoService: BloqueoService) {
 
     @GetMapping("/bloqueos")

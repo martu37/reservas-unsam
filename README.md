@@ -79,8 +79,11 @@ El backend espera a que `postgres` esté listo antes de arrancar y se conecta a
 | `make reset` | borra los datos, vuelve a cargar los scripts de `database/` y levanta todo |
 | `make db` | levanta solo las bases, para correr backend y frontend fuera de Docker |
 
-En la app, desde "Usando como" se cambia de usuario. Daniela Fernández es admin
-y ve la sección de bloqueos.
+En la app se entra con un mail de la UNSAM (sin contraseña: es una prueba de
+concepto). Si el mail no existe, pide nombre, apellido y claustro y lo da de
+alta. Para ver la sección de administración: `dfernandez@unsam.edu.ar`.
+
+Para subirlo a internet: [documentacion/railway.md](documentacion/railway.md).
 
 **Si cambiaron los scripts de `database/`:** se cargan solo cuando la base está
 vacía, así que hay que correr `make reset`. Ojo, esto borra también lo que haya
