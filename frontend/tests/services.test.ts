@@ -108,7 +108,7 @@ test('el historial dice qué motor contestó y arma los eventos', async () => {
     },
   })
 
-  const historial = await historialService.getDeUsuario(2, 'mongo')
+  const historial = await historialService.getDeUsuario(2)
 
   expect(historial.motor).toBe('postgres')
   expect(historial.eventos[0].titulo).toBe('Pedido rechazado')

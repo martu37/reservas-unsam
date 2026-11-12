@@ -25,10 +25,18 @@ particular. Cada interfaz tiene su implementación:
 | repositorio | implementación |
 |---|---|
 | usuarios, espacios, reservas, bloqueos | PostgreSQL (`repository/postgres`) |
-| historial | MongoDB (principal, en desarrollo) y PostgreSQL (respaldo) |
+| historial | MongoDB (`repository/mongo`, la principal) y PostgreSQL (el respaldo) |
 
-Para cambiar dónde se guarda el historial no se toca ningún service: cambia qué
-implementación se usa.
+Para cambiar dónde se guarda el historial no se toca ningún service: lo elige
+`historial.motor` en `application.yml` (`mongo` o `postgres`). En Docker se
+cambia al levantar:
+
+```
+HISTORIAL_MOTOR=postgres make start
+```
+
+El bean que arma esa elección está en `service/Configuracion.kt`. En "Mi
+actividad" el front muestra qué motor contestó.
 
 Orden al reservar: primero se confirma en PostgreSQL y después se registra el
 evento en el historial. Si el historial falla, la reserva ya quedó hecha.

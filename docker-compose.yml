@@ -47,12 +47,17 @@ services:
     environment:
       # Dentro de docker la base no está en localhost sino en el servicio "postgres"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/reservas
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/reservas
+      # Dónde se guarda el historial: mongo, o postgres con HISTORIAL_MOTOR=postgres make start
+      HISTORIAL_MOTOR: ${HISTORIAL_MOTOR:-mongo}
       TZ: America/Argentina/Buenos_Aires
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+      mongo:
+        condition: service_started
 
   # El navegador le pega al backend en localhost:8080 (puerto publicado arriba)
   frontend:

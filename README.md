@@ -92,6 +92,6 @@ en MongoDB.
 - [x] Base PostgreSQL con datos y pruebas de restricciones
 - [x] Backend con API y tests
 - [x] Frontend conectado al backend
-- [ ] Historial en MongoDB y elección del motor por configuración
+- [x] Historial en MongoDB y elección del motor por configuración
 - [ ] Consulta compleja (agregaciones)
 - [ ] Informe

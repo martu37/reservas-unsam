@@ -11,3 +11,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/reservas
     username: reservas
     password: reservas
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/reservas
+
+# Dónde se guarda el historial: mongo (el principal) o postgres (el respaldo)
+historial:
+  motor: mongo

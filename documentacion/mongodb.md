@@ -1,8 +1,5 @@
 # MongoDB: el historial de cada usuario
 
-> **Estado:** en desarrollo. Mientras tanto, el historial se guarda en la tabla
-> de respaldo `historial_evento` de PostgreSQL y la app funciona igual.
-
 PostgreSQL dice qué reservas existen. MongoDB guarda **todo lo que le pasó a
 cada usuario**: reservas confirmadas, cancelaciones y también los pedidos
 rechazados, que no son reservas y por eso no están en PostgreSQL. Con eso se
@@ -65,8 +62,9 @@ que se crea la base; para volver a cargarlo, `make reset`.
 
 El backend tiene una sola interfaz para el historial (`HistorialRepository`) y
 dos formas de guardarlo: en MongoDB (la principal) y en PostgreSQL (el
-respaldo). Cuál se usa se elige por configuración, y el resto del backend no se
-entera. Es el backend polimórfico que pide la consigna (ver [backend.md](backend.md)).
+respaldo). Cuál se usa se elige con `historial.motor` en `application.yml`
+(`mongo` o `postgres`), y el resto del backend no se entera. Es el backend
+polimórfico que pide la consigna (ver [backend.md](backend.md)).
 
 ## Mirar la base a mano
 
