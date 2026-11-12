@@ -40,12 +40,26 @@ Colección `historial`:
   fecha: ISODate("2026-11-09T18:00:00Z"),
   detalle: {                       // cambia según el tipo
     espacio: "Cancha 1",
-    inicio: "2026-11-20T18:00:00",
-    fin: "2026-11-20T19:00:00",
+    inicio: ISODate("2026-11-20T21:00:00Z"),
+    fin: ISODate("2026-11-20T22:00:00Z"),
     motivo: "El turno ya está reservado"
   }
 }
 ```
+
+MongoDB guarda las fechas en UTC: las 18:00 de Argentina se ven como `21:00Z`.
+
+Índice: `{ usuarioId: 1, fecha: -1 }`, porque la consulta de siempre es "el
+historial de un usuario, lo último primero". Es el mismo que
+`ix_historial_usuario_fecha` en PostgreSQL.
+
+## Datos de ejemplo
+
+[`database/scripts_nosql/historial.js`](../database/scripts_nosql/historial.js)
+carga 16 eventos que corresponden a los datos de PostgreSQL: uno por cada una de
+las 11 reservas, la cancelación de la reserva de Sofía y 4 pedidos rechazados
+(estos solo existen en MongoDB). Como los `.sql`, se carga solo la primera vez
+que se crea la base; para volver a cargarlo, `make reset`.
 
 ## Las dos implementaciones
 

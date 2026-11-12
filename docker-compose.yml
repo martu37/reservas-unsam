@@ -39,6 +39,7 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      - ./database/scripts_nosql/historial.js:/docker-entrypoint-initdb.d/01-historial.js:ro
 
   backend:
     build: ./backend
