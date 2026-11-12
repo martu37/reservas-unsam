@@ -1,0 +1,2 @@
+# gradlew se ejecuta dentro de Docker (Linux): tiene que tener fin de línea LF
+backend/gradlew text eol=lf
