@@ -17,6 +17,8 @@ import java.time.LocalDateTime
 interface UsuarioRepository {
     fun findAll(): List<Usuario>
     fun findById(id: Long): Usuario?
+    fun findByMail(mail: String): Usuario?
+    fun create(usuario: Usuario): Usuario
 }
 
 interface EspacioRepository {

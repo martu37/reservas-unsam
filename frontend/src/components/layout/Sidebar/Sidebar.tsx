@@ -1,10 +1,11 @@
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import ListSubheader from '@mui/material/ListSubheader'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { NavLink } from 'react-router'
 import { useSesion } from '../../../hooks/useSesion'
 import { Logo } from '../../ui/Logo/Logo'
@@ -35,7 +36,7 @@ const Item = ({ label, path }: Seccion) => (
 )
 
 export function Sidebar() {
-  const { usuario, usuarios, cambiarUsuario } = useSesion()
+  const { usuario, salir } = useSesion()
 
   return (
     <Drawer variant="permanent" className={styles.drawer}>
@@ -60,21 +61,18 @@ export function Sidebar() {
       )}
 
       {usuario && (
-        <TextField
-          select
-          label="Usando como"
-          value={usuario.id}
-          onChange={(e) => cambiarUsuario(Number(e.target.value))}
-          className={styles.usuario}
-          helperText={usuario.mail}
-        >
-          {usuarios.map((opcion) => (
-            <MenuItem key={opcion.id} value={opcion.id}>
-              {opcion.nombreCompleto}
-              {opcion.esAdmin() ? ' (admin)' : ''}
-            </MenuItem>
-          ))}
-        </TextField>
+        <Box className={styles.usuario}>
+          <Typography variant="body2" className={styles.nombre}>
+            {usuario.nombreCompleto}
+            {usuario.esAdmin() ? ' (admin)' : ''}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" component="p">
+            {usuario.mail}
+          </Typography>
+          <Button size="small" onClick={salir} className={styles.salir}>
+            Salir
+          </Button>
+        </Box>
       )}
     </Drawer>
   )

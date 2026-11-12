@@ -1,16 +1,18 @@
 import { createContext } from 'react'
 import type { Usuario } from '../domain/Usuario'
 
-// Mientras no haya login con el mail institucional, la demo deja elegir
-// con qué usuario se está usando el sistema
+// Quién está usando el sistema: se entra con el mail institucional, sin
+// contraseña (es una prueba de concepto)
 export type Sesion = {
   usuario: Usuario | null
-  usuarios: Usuario[]
-  cambiarUsuario: (id: number) => void
+  cargando: boolean
+  ingresar: (usuario: Usuario) => void
+  salir: () => void
 }
 
 export const SesionContext = createContext<Sesion>({
   usuario: null,
-  usuarios: [],
-  cambiarUsuario: () => {},
+  cargando: false,
+  ingresar: () => {},
+  salir: () => {},
 })

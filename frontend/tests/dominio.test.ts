@@ -2,6 +2,11 @@ import { Bloqueo } from '../src/domain/Bloqueo'
 import { Espacio } from '../src/domain/Espacio'
 import { Reserva } from '../src/domain/Reserva'
 import { TipoEspacio } from '../src/domain/TipoEspacio'
+import {
+  EMPTY_INGRESO,
+  esMailUnsam,
+  validateIngreso,
+} from '../src/forms/ingresoForm'
 
 const parrilla = TipoEspacio.fromJson({
   id: 3,
@@ -139,4 +144,24 @@ test('el espacio marca cada turno como libre, reservado, bloqueado o pasado', ()
     'bloqueado',
     'bloqueado',
   ])
+})
+
+describe('el mail para ingresar', () => {
+  test('tiene que ser de la UNSAM, de docente o de estudiante', () => {
+    expect(esMailUnsam('dfernandez@unsam.edu.ar')).toBe(true)
+    expect(esMailUnsam(' Juan.Perez@Estudiantes.UNSAM.edu.ar ')).toBe(true)
+    expect(esMailUnsam('juanperez@gmail.com')).toBe(false)
+    expect(esMailUnsam('juan@unsam.edu.ar.com')).toBe(false)
+  })
+
+  test('la primera vez también pide nombre, apellido y claustro', () => {
+    const valores = { ...EMPTY_INGRESO, mail: 'ana@unsam.edu.ar' }
+
+    expect(validateIngreso(valores, false)).toEqual({})
+    expect(Object.keys(validateIngreso(valores, true))).toEqual([
+      'nombre',
+      'apellido',
+      'claustro',
+    ])
+  })
 })

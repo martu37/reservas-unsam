@@ -3,6 +3,7 @@ import { bloqueoService } from '../src/services/bloqueoService'
 import { espacioService } from '../src/services/espacioService'
 import { historialService } from '../src/services/historialService'
 import { reservaService } from '../src/services/reservaService'
+import { usuarioService } from '../src/services/usuarioService'
 import { getErrorMesagge } from '../src/utils/errorHandling'
 
 // Los services solo hablan con el backend: se espía axios para ver qué pedido
@@ -122,4 +123,24 @@ test('borrar un bloqueo manda quién lo borra', async () => {
   expect(del).toHaveBeenCalledWith(`${URL}/bloqueos/3`, {
     params: { usuarioId: 5 },
   })
+})
+
+test('ingresar busca al usuario por su mail', async () => {
+  const get = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+    data: {
+      id: 5,
+      mail: 'dfernandez@unsam.edu.ar',
+      apellido: 'Fernández',
+      nombre: 'Daniela',
+      claustro: 'no docente',
+      rol: 'admin',
+    },
+  })
+
+  const usuario = await usuarioService.buscarPorMail('dfernandez@unsam.edu.ar')
+
+  expect(get).toHaveBeenCalledWith(`${URL}/usuarios/buscar`, {
+    params: { mail: 'dfernandez@unsam.edu.ar' },
+  })
+  expect(usuario.esAdmin()).toBe(true)
 })

@@ -48,6 +48,8 @@ Con el backend levantado queda en `http://localhost:8080`.
 | Método | Ruta | Qué hace |
 |---|---|---|
 | GET | `/usuarios`, `/usuarios/{id}` | usuarios |
+| GET | `/usuarios/buscar?mail=` | ingreso: el usuario de ese mail (404 si no se dio de alta) |
+| POST | `/usuarios` | alta (`mail`, `nombre`, `apellido`, `claustro`), siempre como usuario común |
 | GET | `/espacios`, `/espacios/{id}` | espacios activos, con su tipo |
 | GET | `/espacios/{id}/turnos?fecha=AAAA-MM-DD` | grilla del día con el estado de cada turno |
 | GET | `/espacios/uso` | reservas confirmadas y canceladas de cada espacio (la consulta de `database/consultas.sql`) |
@@ -58,8 +60,9 @@ Con el backend levantado queda en `http://localhost:8080`.
 | GET | `/bloqueos`, `/bloqueos/{id}` | bloqueos por mantenimiento |
 | POST, PUT, DELETE | `/bloqueos`, `/bloqueos/{id}` con `?usuarioId=` | alta, cambio y baja de bloqueos (solo admin) |
 
-No hay login: quién hace el pedido va en `?usuarioId=`. En el front se elige
-desde "Usando como".
+No hay contraseña: se entra con el mail institucional (el front controla que sea
+de la UNSAM y la base lo vuelve a controlar con `ck_usuario_mail`). Después,
+quién hace cada pedido va en `?usuarioId=`.
 
 Errores: 400 si no se cumple una regla, 404 si no existe, 409 si el turno está
 ocupado o bloqueado. El cuerpo trae el motivo en `message`.

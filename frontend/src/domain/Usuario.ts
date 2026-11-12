@@ -10,6 +10,14 @@ export type UsuarioJSON = {
   rol: Rol
 }
 
+// Lo que se manda para darse de alta (el rol siempre es usuario)
+export type NuevoUsuarioData = {
+  mail: string
+  nombre: string
+  apellido: string
+  claustro: Claustro
+}
+
 export class Usuario {
   id = 0
   mail = ''

@@ -6,6 +6,8 @@
 .drawer :global(.MuiDrawer-paper) {
   width: 240px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .item {
@@ -18,16 +20,50 @@
   color: var(--mui-palette-primary-main);
 }
 
-.drawer :global(.MuiDrawer-paper) {
-  display: flex;
-  flex-direction: column;
-}
-
 .usuario {
   margin: auto 16px 16px;
+  overflow-wrap: anywhere;
 }
 
-.usuario :global(.MuiFormHelperText-root) {
-  margin-left: 0;
-  overflow-wrap: anywhere;
+.nombre {
+  font-weight: 600;
+}
+
+.salir {
+  margin-top: 4px;
+  margin-left: -4px;
+}
+
+/* En el celular el menú va arriba, a lo ancho, y el contenido abajo */
+@media (max-width: 700px) {
+  .drawer {
+    width: 100%;
+  }
+
+  .drawer :global(.MuiDrawer-paper) {
+    position: static;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--mui-palette-divider);
+  }
+
+  .drawer nav {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 0 8px;
+  }
+
+  .drawer nav :global(.MuiListSubheader-root) {
+    width: 100%;
+    line-height: 32px;
+  }
+
+  .item {
+    flex: 0 0 auto;
+    margin: 0 4px;
+  }
+
+  .usuario {
+    margin: 0 16px 12px;
+  }
 }
