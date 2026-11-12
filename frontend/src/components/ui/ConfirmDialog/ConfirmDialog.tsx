@@ -12,7 +12,7 @@ type ConfirmDialogProps = {
   message: string
   confirmLabel: string
   confirmColor?: 'primary' | 'error'
-  onConfirm: () => void
+  onConfirm: () => void | Promise<void>
   onCancel: () => void
 }
 
@@ -29,15 +29,35 @@ export function ConfirmDialog({
   const [lastMessage, setLastMessage] = useState(message)
   if (message && message !== lastMessage) setLastMessage(message)
 
+  // Mientras se envía el pedido los botones quedan desactivados: un doble clic
+  // no manda dos veces lo mismo
+  const [enviando, setEnviando] = useState(false)
+
+  const confirmar = async () => {
+    setEnviando(true)
+    try {
+      await onConfirm()
+    } finally {
+      setEnviando(false)
+    }
+  }
+
   return (
-    <Dialog open={open} onClose={onCancel}>
+    <Dialog open={open} onClose={enviando ? undefined : onCancel}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message || lastMessage}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel}>Cancelar</Button>
-        <Button color={confirmColor} variant="contained" onClick={onConfirm}>
+        <Button onClick={onCancel} disabled={enviando}>
+          Cancelar
+        </Button>
+        <Button
+          color={confirmColor}
+          variant="contained"
+          onClick={confirmar}
+          disabled={enviando}
+        >
           {confirmLabel}
         </Button>
       </DialogActions>
