@@ -3,6 +3,7 @@ package ar.edu.unsam.reservas.repository.postgres
 import ar.edu.unsam.reservas.domain.EstadoReserva
 import ar.edu.unsam.reservas.domain.Franja
 import ar.edu.unsam.reservas.domain.Reserva
+import ar.edu.unsam.reservas.domain.UsoEspacio
 import ar.edu.unsam.reservas.repository.ReservaRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -101,4 +102,46 @@ class ReservaRepositoryPostgres(private val jdbc: NamedParameterJdbcTemplate) : 
             )
         }
     }
+
+    // La misma consulta que database/consultas.sql (ahí está explicada)
+    override fun usoPorEspacio(): List<UsoEspacio> =
+        jdbc.query(
+            """
+            WITH uso AS (
+                SELECT e.nombre                                                 AS espacio,
+                       t.nombre                                                 AS tipo,
+                       COUNT(r.id)                                              AS total,
+                       SUM(CASE WHEN r.estado = 'CONFIRMADA' THEN 1 ELSE 0 END) AS confirmadas,
+                       SUM(CASE WHEN r.estado = 'CANCELADA'  THEN 1 ELSE 0 END) AS canceladas
+                  FROM espacio e
+                  JOIN tipo_espacio t ON t.id = e.tipo_espacio_id
+                  LEFT JOIN reserva r ON r.espacio_id = e.id
+                 WHERE e.activo
+                 GROUP BY e.id, e.nombre, t.nombre
+            )
+            SELECT espacio,
+                   tipo,
+                   confirmadas,
+                   canceladas,
+                   CASE WHEN total = 0 THEN 0
+                        ELSE ROUND(100.0 * canceladas / total)
+                   END AS porcentaje_canceladas,
+                   CASE WHEN confirmadas >= 3 THEN 'Alta'
+                        WHEN confirmadas >= 1 THEN 'Media'
+                        ELSE 'Sin uso'
+                   END AS demanda
+              FROM uso
+             ORDER BY confirmadas DESC, espacio
+            """,
+            emptyMap<String, Any>(),
+        ) { rs, _ ->
+            UsoEspacio(
+                espacio = rs.getString("espacio"),
+                tipo = rs.getString("tipo"),
+                confirmadas = rs.getInt("confirmadas"),
+                canceladas = rs.getInt("canceladas"),
+                porcentajeCanceladas = rs.getInt("porcentaje_canceladas"),
+                demanda = rs.getString("demanda"),
+            )
+        }
 }

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Espacio, type EspacioJSON } from '../domain/Espacio'
 import type { Turno } from '../domain/Turno'
+import type { UsoEspacio } from '../domain/UsoEspacio'
 import { REST_SERVER_URL } from './constants'
 
 class EspacioService {
@@ -23,6 +24,14 @@ class EspacioService {
     const { data } = await axios.get<Turno[]>(
       `${REST_SERVER_URL}/espacios/${espacioId}/turnos`,
       { params: { fecha } },
+    )
+    return data
+  }
+
+  // La consulta de agregación: reservas confirmadas y canceladas de cada espacio
+  async getUso(): Promise<UsoEspacio[]> {
+    const { data } = await axios.get<UsoEspacio[]>(
+      `${REST_SERVER_URL}/espacios/uso`,
     )
     return data
   }

@@ -50,6 +50,7 @@ Con el backend levantado queda en `http://localhost:8080`.
 | GET | `/usuarios`, `/usuarios/{id}` | usuarios |
 | GET | `/espacios`, `/espacios/{id}` | espacios activos, con su tipo |
 | GET | `/espacios/{id}/turnos?fecha=AAAA-MM-DD` | grilla del día con el estado de cada turno |
+| GET | `/espacios/uso` | reservas confirmadas y canceladas de cada espacio (la consulta de `database/consultas.sql`) |
 | GET | `/usuarios/{id}/reservas` | reservas de un usuario |
 | POST | `/reservas?usuarioId=` | reservar (`espacioId`, `inicio`, `fin`) |
 | PATCH | `/reservas/{id}/cancelar?usuarioId=` | cancelar una reserva propia |

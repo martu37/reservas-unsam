@@ -5,13 +5,14 @@ import ar.edu.unsam.reservas.domain.Espacio
 import ar.edu.unsam.reservas.domain.EventoHistorial
 import ar.edu.unsam.reservas.domain.Franja
 import ar.edu.unsam.reservas.domain.Reserva
+import ar.edu.unsam.reservas.domain.UsoEspacio
 import ar.edu.unsam.reservas.domain.Usuario
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 // Lo que la aplicación necesita guardar y buscar, sin decir con qué motor.
 // Los services dependen de estas interfaces; las implementaciones están en
-// repository/postgres (y el historial va a tener además una en MongoDB).
+// repository/postgres, y el historial tiene además una en repository/mongo.
 
 interface UsuarioRepository {
     fun findAll(): List<Usuario>
@@ -34,6 +35,9 @@ interface ReservaRepository {
 
     fun create(reserva: Reserva): Reserva
     fun update(reserva: Reserva)
+
+    // Cuántas reservas confirmadas y canceladas tiene cada espacio
+    fun usoPorEspacio(): List<UsoEspacio>
 }
 
 // El repositorio polimórfico del punto 6: una implementación en MongoDB

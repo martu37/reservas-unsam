@@ -91,4 +91,18 @@ class ReservaRepositoryPostgresTest(
 
         afectadas.map { it.usuario.mail } shouldBe listOf(JUAN, LUCIA)
     }
+
+    @Test
+    fun `el uso por espacio cuenta las reservas y muestra también los espacios sin reservas`() {
+        val cancha3 = espacios.llamado("Cancha 3")
+        val antes = reservas.usoPorEspacio().first { it.espacio == "Cancha 3" }
+
+        reservas.create(reservaDePrueba(juan, cancha3, franjaDePrueba("10:00", "11:30")))
+        val uso = reservas.usoPorEspacio()
+
+        uso shouldHaveSize 6
+        uso.first { it.espacio == "Cancha 3" }.confirmadas shouldBe antes.confirmadas + 1
+        uso.first { it.espacio == "Parrilla 3" }.demanda shouldBe "Sin uso"
+        uso.first { it.espacio == "Parrilla 3" }.porcentajeCanceladas shouldBe 0
+    }
 }

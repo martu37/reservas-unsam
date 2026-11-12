@@ -32,6 +32,15 @@ class ConsultasControllerTest(
     private val cancha1 get() = espacios.llamado("Cancha 1").id
 
     @Test
+    fun `el uso de los espacios trae una fila por espacio con su demanda`() {
+        mockMvc.perform(get("/espacios/uso"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(6))
+            .andExpect(jsonPath("$[0].espacio").exists())
+            .andExpect(jsonPath("$[0].demanda").exists())
+    }
+
+    @Test
     fun `los usuarios llegan con claustro y rol como los usa el front`() {
         mockMvc.perform(get("/usuarios/$daniela"))
             .andExpect(status().isOk)

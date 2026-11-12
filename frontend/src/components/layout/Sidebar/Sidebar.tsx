@@ -16,7 +16,10 @@ const SECCIONES = [
   { label: 'Mi actividad', path: '/actividad' },
 ]
 
-const SECCIONES_ADMIN = [{ label: 'Bloqueos', path: '/admin/bloqueos' }]
+const SECCIONES_ADMIN = [
+  { label: 'Bloqueos', path: '/admin/bloqueos' },
+  { label: 'Uso de espacios', path: '/admin/uso' },
+]
 
 type Seccion = { label: string; path: string }
 

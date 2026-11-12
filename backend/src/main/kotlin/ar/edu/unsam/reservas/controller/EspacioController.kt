@@ -1,5 +1,6 @@
 package ar.edu.unsam.reservas.controller
 
+import ar.edu.unsam.reservas.domain.UsoEspacio
 import ar.edu.unsam.reservas.dto.EspacioDTO
 import ar.edu.unsam.reservas.dto.TurnoDTO
 import ar.edu.unsam.reservas.dto.toDTO
@@ -17,6 +18,10 @@ class EspacioController(private val espacioService: EspacioService) {
 
     @GetMapping("/espacios")
     fun getEspacios(): List<EspacioDTO> = espacioService.todos().map { it.toDTO() }
+
+    // La consulta de agregación: reservas confirmadas y canceladas de cada espacio
+    @GetMapping("/espacios/uso")
+    fun getUso(): List<UsoEspacio> = espacioService.uso()
 
     @GetMapping("/espacios/{id}")
     fun getEspacio(@PathVariable id: Long): EspacioDTO = espacioService.porId(id).toDTO()

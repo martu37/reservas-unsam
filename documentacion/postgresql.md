@@ -40,6 +40,7 @@ el [DER](DER.md#restricciones-que-no-se-ven-en-el-diagrama).
 | el script que crea la base | [`database/modelo_relacional.sql`](../database/modelo_relacional.sql) |
 | los datos de prueba | [`database/datos_iniciales.sql`](../database/datos_iniciales.sql) |
 | la planilla original | [`database/dataset_inicial.csv`](../database/dataset_inicial.csv) |
+| la consulta de agregación (uso de cada espacio) | [`database/consultas.sql`](../database/consultas.sql) |
 | que las restricciones funcionan | [`database/pruebas_restricciones.sql`](../database/pruebas_restricciones.sql) y su [salida](pruebas_restricciones_salida.txt) |
 
 Para correr las pruebas de las restricciones:

@@ -93,5 +93,5 @@ en MongoDB.
 - [x] Backend con API y tests
 - [x] Frontend conectado al backend
 - [x] Historial en MongoDB y elección del motor por configuración
-- [ ] Consulta compleja (agregaciones)
+- [x] Consulta compleja (agregaciones)
 - [ ] Informe

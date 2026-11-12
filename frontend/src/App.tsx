@@ -6,6 +6,7 @@ import { BloqueoFormPage } from './pages/BloqueoFormPage'
 import { Bloqueos } from './pages/Bloqueos'
 import { Disponibilidad } from './pages/Disponibilidad'
 import { MisReservas } from './pages/MisReservas'
+import { UsoEspacios } from './pages/UsoEspacios'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="mis-reservas" element={<MisReservas />} />
           <Route path="actividad" element={<Actividad />} />
           <Route path="admin/bloqueos" element={<Bloqueos />} />
+          <Route path="admin/uso" element={<UsoEspacios />} />
           <Route path="admin/bloqueos/nuevo" element={<BloqueoFormPage />} />
           <Route
             path="admin/bloqueos/:id/editar"

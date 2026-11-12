@@ -4,6 +4,7 @@ import ar.edu.unsam.reservas.domain.Espacio
 import ar.edu.unsam.reservas.domain.Franja
 import ar.edu.unsam.reservas.domain.NotFoundException
 import ar.edu.unsam.reservas.domain.Turno
+import ar.edu.unsam.reservas.domain.UsoEspacio
 import ar.edu.unsam.reservas.repository.BloqueoRepository
 import ar.edu.unsam.reservas.repository.EspacioRepository
 import ar.edu.unsam.reservas.repository.ReservaRepository
@@ -19,6 +20,8 @@ class EspacioService(
     private val reloj: Clock,
 ) {
     fun todos(): List<Espacio> = espacios.findAll()
+
+    fun uso(): List<UsoEspacio> = reservas.usoPorEspacio()
 
     fun porId(id: Long): Espacio =
         espacios.findById(id) ?: throw NotFoundException("No se encontró el espacio $id")
