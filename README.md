@@ -55,6 +55,12 @@ Hace falta Docker Desktop abierto y make. Desde la carpeta del proyecto:
 make start
 ```
 
+Sin make (en Windows no viene instalado), es lo mismo que:
+
+```
+docker compose up -d --build
+```
+
 Construye y levanta todo en Docker (las bases, el backend y el frontend) y
 devuelve la terminal. La primera vez tarda unos minutos porque compila.
 

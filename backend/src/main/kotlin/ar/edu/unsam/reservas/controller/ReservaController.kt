@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-// Quién hace el pedido llega como ?usuarioId=. No hay login: en la demo se elige
-// el usuario en el front ("Usando como"). Con login saldría de la sesión.
+// Quién hace el pedido llega como ?usuarioId=: es el usuario que ingresó con su
+// mail en el front. No hay contraseña (es una prueba de concepto).
 @RestController
 @CrossOrigin(origins = ["\${cors.origen}"])
 class ReservaController(private val reservaService: ReservaService) {

@@ -120,8 +120,9 @@ Además de normalizar, ajustamos el modelo al sistema nuevo:
    Así las claves foráneas son simples y, si cambia un nombre, no hay que tocar
    otras tablas.
 2. **Fecha y hora juntas.** `fecha_reserva` + `hora_inicio` / `hora_fin` pasan a
-   `inicio` y `fin` (fecha y hora). Con eso la base puede comparar rangos y
-   prohibir superposiciones.
+   `inicio` y `fin` (fecha y hora). Así se comparan horarios directamente (por
+   ejemplo, si una reserva cae dentro de un bloqueo) y el índice único puede
+   mirar el `inicio` de cada turno.
 3. **`fin` se guarda aunque se pueda calcular** (inicio + duración del tipo). Lo
    guardamos porque si mañana cambia la duración de un tipo, las reservas viejas
    tienen que conservar su horario original. Además, para saber si una reserva

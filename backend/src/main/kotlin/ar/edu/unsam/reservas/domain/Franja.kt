@@ -11,7 +11,7 @@ data class Franja(val inicio: LocalDateTime, val fin: LocalDateTime) {
     }
 
     // Se pisan si una empieza antes de que termine la otra. Dos turnos seguidos
-    // (18 a 19 y 19 a 20) no se pisan. En PostgreSQL es el operador && de rangos.
+    // (18 a 19 y 19 a 20) no se pisan.
     fun sePisaCon(otra: Franja) = inicio < otra.fin && otra.inicio < fin
 
     fun yaEmpezo(ahora: LocalDateTime) = !inicio.isAfter(ahora)

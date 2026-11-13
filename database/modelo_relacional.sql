@@ -117,7 +117,7 @@ CREATE TABLE bloqueo (
 
 -- Historial de eventos: respaldo de MongoDB
 -- El historial se guarda en MongoDB; esta tabla es la otra implementación del
--- mismo repositorio, por si se configura PostgreSQL o Mongo no responde.
+-- mismo repositorio: se usa si en el backend se configura historial.motor=postgres.
 -- Cada tipo de evento usa columnas distintas (un rechazo tiene motivo pero no
 -- reserva), así que las que no corresponden quedan en NULL. En Mongo, en cambio,
 -- cada documento guarda solo sus campos.

@@ -103,9 +103,10 @@ INSERT INTO bloqueo (espacio_id, inicio, fin, motivo, creado_por)
 VALUES ((SELECT id FROM espacio WHERE nombre = 'Cancha 4'),
         CURRENT_DATE + 5 + TIME '09:00', CURRENT_DATE + 5 + TIME '13:00', 'Pintura', 5);
 DELETE FROM espacio WHERE nombre = 'Cancha 4';
+-- Si no hubiera CASCADE el DELETE daría error y el bloqueo seguiría ahí (daría 1)
 SELECT count(*) AS bloqueos_de_cancha_4
   FROM bloqueo
- WHERE espacio_id NOT IN (SELECT id FROM espacio);
+ WHERE motivo = 'Pintura';
 
 \echo
 \echo '== Los datos quedaron como estaban =='

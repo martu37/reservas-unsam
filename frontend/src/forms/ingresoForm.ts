@@ -18,8 +18,8 @@ export const EMPTY_INGRESO: IngresoFormValues = {
 
 export const CLAUSTROS: Claustro[] = ['estudiante', 'docente', 'no docente']
 
-// La misma regla que el backend y que la base (ck_usuario_mail):
-// usuario@unsam.edu.ar o usuario@estudiantes.unsam.edu.ar
+// La misma regla que el backend: usuario@unsam.edu.ar o
+// usuario@estudiantes.unsam.edu.ar. La base lo vuelve a controlar (ck_usuario_mail)
 const MAIL_UNSAM = /^[^@\s]+@([a-z0-9-]+\.)?unsam\.edu\.ar$/i
 
 export const esMailUnsam = (mail: string) => MAIL_UNSAM.test(mail.trim())

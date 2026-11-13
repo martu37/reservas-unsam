@@ -1,4 +1,7 @@
--- Datos iniciales: los de database/dataset_inicial.csv, ya normalizados.
+-- Datos iniciales. Las personas, los tipos y los espacios son los de
+-- database/dataset_inicial.csv, ya normalizados. Las reservas son otras: en la
+-- planilla hay horarios que no son un turno del sistema nuevo (una parrilla de
+-- 12 a 16), así que armamos unas parecidas con los turnos fijos.
 -- Los id los genera SERIAL en el orden en que se insertan (1, 2, 3...).
 -- Las fechas se calculan desde el día en que se carga la base, para que
 -- siempre haya reservas próximas: CURRENT_DATE + 1 + TIME '18:00' es
